@@ -1,0 +1,14 @@
+ - name: push cfg to device
+   hosts: "{{ target }}"
+   connection: local
+   gather_facts: no
+   tasks:
+    - include_vars: "/etc/ansible/SP/nodes.yml"
+    - name: get facts from device
+      napalm_get_facts:
+        dev_os: "{{ dev_os }}"
+        filter: "facts"
+      register: result
+
+    - name: print data
+      debug: var=result

@@ -1,0 +1,15 @@
+ - name: push cfg to device
+   hosts: "{{target}}"
+   connection: local
+   gather_facts: no
+   tasks:
+    - include_vars: "/etc/ansible/SP/nodes.yml"
+    - name: load cfg file to device
+      napalm_install_config:
+        username: "{{ ansible_user }}"
+        password: "{{ ansible_ssh_pass }}"
+        dev_os: "{{ dev_os }}"
+        config_file: /etc/ansible/SP/config/{{dev_os}}/{{inventory_hostname}}.cfg
+        commit_changes: "{{commit}}"
+        diff_file: /etc/ansible/SP/diff/{{inventory_hostname}}.diff
+      when: "inventory_hostname in nodes.keys()"

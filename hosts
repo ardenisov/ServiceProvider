@@ -1,0 +1,23 @@
+[junos]
+PE1 ansible_host=172.23.84.206
+P1  ansible_host=172.23.84.207
+P3  ansible_host=172.23.84.208
+P5  ansible_host=172.23.84.209
+PE3 ansible_host=172.23.84.210
+
+[iosxr]
+PE2 ansible_host=172.23.84.201
+P2  ansible_host=172.23.84.202
+P4  ansible_host=172.23.84.203
+P6  ansible_host=172.23.84.204
+PE4 ansible_host=172.23.84.205
+
+[junos:vars]
+ansible_user=croc
+ansible_ssh_pass=P@ssw0rd
+dev_os=junos
+
+[iosxr:vars]
+ansible_user=croc
+ansible_ssh_pass=P@ssw0rd
+dev_os=iosxr

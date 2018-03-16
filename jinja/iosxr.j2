@@ -1,0 +1,64 @@
+{% set node = nodes[inventory_hostname] %}
+!
+hostname {{inventory_hostname}}
+domain name croclab.ru
+!
+interface Loopback0
+ ipv4 address {{node.rid}}/32
+!
+interface MgmtEth0/0/CPU0/0
+ description "OOB to MGMT Network"
+ ipv4 address {{node.mgmt}} 255.255.255.0
+ no shutdown
+!
+{% for intf,intf_attr in node.links.items() %}
+{% if intf_attr.vlan is defined and intf_attr.vlan != 0 %}
+interface {{intf}}
+ description "{{ intf_attr.remote }}"
+ encapsulation dot1q {{intf_attr.vlan}}
+ ipv4 address {{intf_attr.ip}}
+interface {{intf.split('.')[0]}}
+ no shutdown
+{% else %}
+interface {{intf.split('.')[0]}}
+ description "{{ intf_attr.remote }}"
+ ipv4 address {{intf_attr.ip}}
+ no shutdown
+{% endif %}
+{% endfor %}
+!
+router static
+ address-family ipv4 unicast
+  0.0.0.0/0 172.23.84.1
+ !
+!
+router ospf {{common.ospf.process}}
+ address-family ipv4 unicast
+ area {{common.ospf.area}}
+ interface Loopback0
+  passive enable
+{% for intf,intf_attr in node.links.items()|sort %}
+ interface {{intf}}
+ cost {{intf_attr.cost}}
+ network point-to-point
+{% endfor %}
+!
+mpls ldp
+{% for intf, intf_attr in node.links.items()|sort %}
+{% if intf_attr.ldp is defined and intf_attr.ldp == 1  %}
+ interface {{ intf }}
+{% endif %}
+{% endfor %}
+!
+ssh server v2
+ssh server logging
+xml agent ssl
+ iteration off
+!
+xml agent tty
+ iteration off
+!
+netconf agent tty
+!
+end
+!
