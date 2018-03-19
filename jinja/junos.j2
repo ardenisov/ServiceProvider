@@ -63,6 +63,9 @@ interfaces {
             family inet {
                 address {{node.rid}}/32;
             }
+	    family iso {
+		address {{ node.isis.net }}
+	    }
         }
     
 {% for intf,intf_attr in node.links.items()|sort %}
@@ -74,10 +77,8 @@ interfaces {
             family inet {
                 address {{ intf_attr.ip }}/{{ intf_attr.mask|default('31') }};
             }
-{% if intf_attr.mpls is defined and intf_attr.mpls == 0 %}
-{% else %}
             family mpls;
-{% endif %}
+            family iso;
         }
 {% else %}
     }
@@ -90,10 +91,8 @@ interfaces {
             family inet {
                 address {{ intf_attr.ip }}/{{ intf_attr.mask|default('31') }};
             }
-{% if intf_attr.mpls is defined and intf_attr.mpls == 0 %}
-{% else %}
             family mpls;
-{% endif %}
+	    family iso;
         }
 {% else %}
         unit 0 {
@@ -101,10 +100,8 @@ interfaces {
             family inet {
                 address {{ intf_attr.ip }}/{{ intf_attr.mask|default('31') }};
             }
-{% if intf_attr.mpls is defined and intf_attr.mpls == 0 %}
-{% else %}
             family mpls;
-{% endif %}
+	    family iso:
         }
 {% endif %}
 {% set oldintf = newintf%}
@@ -112,32 +109,79 @@ interfaces {
 {% endfor %}
     }
 }
-
+{#
+**************************************************
+###         Routing Options        ######
+##**************************************************
+##    #}
 routing-options {
         router-id {{ node.rid }};
         autonomous-system {{ common.bgp.as }};
             }
-protocols {
-    ospf {
-        area 0 {
-{%          for intf, intf_attr in node.links.items()|sort %}
-            interface {{ intf }} {
-                interface-type p2p;
-{%              if intf_attr.cost is defined %}
-                metric {{intf_attr.cost }};
-{%              endif %}
-            }
-{%          endfor %}
-            interface lo0.0 {
-                passive;
-            }
-        }
-    }
+{#
+**************************************************
+###         Policy configuration        ######
+##**************************************************
+##    #}
+policy-options {
+        policy-statement ISIS_LEAK {
 
+        from {
+            protocol isis;
+            level 2;
+            route-filter 172.16.0.0/24 orlonger;
+        }
+        to {
+            protocol isis;
+            level 1;
+        }
+        then accept;
+    }
+}
+{#
+**************************************************
+###         Protocols configuration        ######
+##**************************************************
+##    #}
+protocols {
+    isis {
+{% if node.isis.propagate is defined %}
+        export {{ node.isis.propagate }};
+{% endif %}
+        overload timeout 60;
+        level 1 wide-metrics-only;
+        level 2 wide-metrics-only;        
+{%          for intf,intf_attr in node.links.items()|sort %}
+        interface {{ intf }} {
+                point-to-point;
+{%              if intf_attr.cost is defined %}
+                level 2 metric {{ intf_attr.cost }};
+		level 1 metric {{ intf_attr.cost }};
+{%              endif %}
+{%              if intf_attr.circuit_type is defined and intf_attr.circuit_type == "level-2-only" %}
+		level 1 disable;
+{%              elif intf_attr.circuit_type is defined and intf_attr.circuit_type == "level-1" %}
+                level 2 disable;
+{%              endif %}
+	}
+{% endfor %}
+	    interface fxp0.0 {
+            	disable;
+        }
+        interface lo0.0 {
+            	passive;
+{%              if node.isis.lolvl is defined and node.isis.lolvl == "level-2-only" %}
+                level 1 disable;
+{%              elif node.isis.lolvl is defined and node.isis.lolvl == "level-1" %}
+                level 2 disable;
+{%              endif %}
+        }
+
+    }
     mpls {
-{% for intf, intf_attr in node.links.items()|sort %}
+{% for intf,intf_attr in node.links.items()|sort %}
 {% if intf_attr.mpls is undefined  %}
-            interface {{ intf }};
+           interface {{ intf }};
 {% endif %}
 {% endfor %}
    }
@@ -146,7 +190,7 @@ protocols {
            track-igp-metric;
 {% for intf, intf_attr in node.links.items()|sort %}
 {% if intf_attr.ldp is defined and intf_attr.ldp == 1  %}
-            interface {{ intf }};
+           interface {{ intf }};
 {% endif %}
 {% endfor %}
    }

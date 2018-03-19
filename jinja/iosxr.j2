@@ -32,15 +32,36 @@ router static
   0.0.0.0/0 172.23.84.1
  !
 !
-router ospf {{common.ospf.process}}
- address-family ipv4 unicast
- area {{common.ospf.area}}
- interface Loopback0
-  passive enable
+route-policy ISIS_LEAK
+   if destination in (172.16.0.0/24 eq 32) then
+     pass
+   endif
+end-policy
+!
+router isis {{common.isis.process}}
+net {{node.isis.net}}
+is-type {{node.isis.level}}
+set-overload-bit on-startup wait-for-bgp
+address-family ipv4 unicast
+  metric-style wide
+  ispf
+{% if node.isis.propagate is defined %}
+  propagate level 2 into level 1 route-policy {{ node.isis.propagate }}
+{% endif %}
+interface Loopback0
+  passive
+  address-family ipv4 unicast
+{% if node.isis.lolvl is defined %}
+  circuit-type {{node.isis.lolvl}}
+{% endif %}
 {% for intf,intf_attr in node.links.items()|sort %}
  interface {{intf}}
- cost {{intf_attr.cost}}
- network point-to-point
+   point-to-point
+{% if intf_attr.circuit_type is defined %}
+   circuit-type {{intf_attr.circuit_type}}
+{% endif %}
+  address-family ipv4 unicast
+   metric {{intf_attr.cost}}
 {% endfor %}
 !
 mpls ldp
