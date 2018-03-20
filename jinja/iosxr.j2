@@ -62,9 +62,17 @@ interface Loopback0
 {% endif %}
   address-family ipv4 unicast
    metric {{intf_attr.cost}}
+{% if intf_attr.ldp is defined and intf_attr.ldp == 1  %}
+   mpls ldp sync
+{% endif %}
 {% endfor %}
 !
 mpls ldp
+ session protection
+ address-family ipv4
+  label
+   local
+    allocate for host-routes
 {% for intf, intf_attr in node.links.items()|sort %}
 {% if intf_attr.ldp is defined and intf_attr.ldp == 1  %}
  interface {{ intf }}

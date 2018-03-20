@@ -117,6 +117,7 @@ interfaces {
 routing-options {
         router-id {{ node.rid }};
         autonomous-system {{ common.bgp.as }};
+	forwarding-table export PL-LB;
             }
 {#
 **************************************************
@@ -137,6 +138,9 @@ policy-options {
         }
         then accept;
     }
+    	policy-statement PL-LB {
+    	   then load-balance per-packet;
+}
 }
 {#
 **************************************************
@@ -163,6 +167,9 @@ protocols {
 {%              elif intf_attr.circuit_type is defined and intf_attr.circuit_type == "level-1" %}
                 level 2 disable;
 {%              endif %}
+{% if intf_attr.ldp is defined and intf_attr.ldp == 1  %}
+                ldp-synchronization;
+{% endif %}
 	}
 {% endfor %}
 	    interface fxp0.0 {
@@ -180,13 +187,14 @@ protocols {
     }
     mpls {
 {% for intf,intf_attr in node.links.items()|sort %}
-{% if intf_attr.mpls is undefined  %}
            interface {{ intf }};
-{% endif %}
 {% endfor %}
    }
 
    ldp {
+	   interface lo0.0;
+           session-protection;
+           deaggregate;
            track-igp-metric;
 {% for intf, intf_attr in node.links.items()|sort %}
 {% if intf_attr.ldp is defined and intf_attr.ldp == 1  %}
