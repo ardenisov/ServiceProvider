@@ -1,8 +1,0 @@
-[edit protocols isis interface ge-0/0/0.111]
-+     ldp-synchronization;
-[edit protocols isis interface ge-0/0/0.1122]
-+     ldp-synchronization;
-[edit protocols ldp]
-+    interface lo0.0;
-[edit protocols ldp]
-+    session-protection;

@@ -1,3 +1,0 @@
-[edit protocols ldp]
-+    interface lo0.0;
-+    session-protection;

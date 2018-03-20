@@ -1,23 +1,13 @@
 --- 
 +++ 
-@@ -58,6 +58,7 @@
-   point-to-point
-   address-family ipv4 unicast
-    metric 10
-+   mpls ldp sync
-   !
-  !
-  interface GigabitEthernet0/0/0/0.1122
-@@ -65,10 +66,12 @@
-   point-to-point
-   address-family ipv4 unicast
-    metric 100
-+   mpls ldp sync
+@@ -81,7 +81,10 @@
    !
   !
  !
++mpls oam
++!
+ mpls traffic-eng
++ reoptimize 30
+ !
  mpls ldp
-+ session protection
-  address-family ipv4
-   label
-    local
+  session protection

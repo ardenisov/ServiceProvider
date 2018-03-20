@@ -45,6 +45,8 @@ set-overload-bit on-startup wait-for-bgp
 address-family ipv4 unicast
   metric-style wide
   ispf
+  mpls traffic-eng level-2-only
+  mpls traffic-eng router-id Loopback0
 {% if node.isis.propagate is defined %}
   propagate level 2 into level 1 route-policy {{ node.isis.propagate }}
 {% endif %}
@@ -76,9 +78,48 @@ mpls ldp
 {% for intf, intf_attr in node.links.items()|sort %}
 {% if intf_attr.ldp is defined and intf_attr.ldp == 1  %}
  interface {{ intf }}
+{% else %}
+ no interface {{ intf }} 
 {% endif %}
 {% endfor %}
 !
+rsvp
+{% for intf, intf_attr in node.links.items()|sort %}
+{% if intf_attr.rsvp is defined and intf_attr.rsvp == 1  %}
+ interface {{ intf }}
+{% endif %}
+{% else %}
+ no interface {{ intf }}
+{% endfor %}
+!
+mpls traffic-eng
+reoptimize 30
+{% for intf, intf_attr in node.links.items()|sort %}
+{% if intf_attr.rsvp is defined and intf_attr.rsvp == 1  %}
+ interface {{ intf }}
+{% else %}
+ no interface {{ intf }}
+{% endif %}
+{% endfor %}
+!
+group GR-LSP
+ interface 'tunnel-te.*'
+  ipv4 unnumbered Loopback0
+  autoroute announce
+  record-route
+  path-option 1 dynamic
+end-group
+!
+{% if node.rsvp is defined and node.rsvp !=1 %}
+{% for rsvp_dst,rsvp_attr in node.rsvp.items()|sort %}
+interface tunnel-{{ rsvp_attr.tun }}
+ apply-group GR-LSP
+ signalled-name {{ inventory_hostname }}-->{{ rsvp_dst }}
+ destination {{ rsvp_attr.ip }}
+{% endfor %}
+{% endif%}
+!
+mpls oam
 ssh server v2
 ssh server logging
 xml agent ssl

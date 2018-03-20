@@ -144,10 +144,29 @@ policy-options {
 }
 {#
 **************************************************
+###         Groups configuration        ######
+###**************************************************
+###    #}
+groups {
+	GR-LSP {
+		protocols {
+			mpls label-switched-path <*> adaptive;
+		}
+	}
+}
+
+{#
+**************************************************
 ###         Protocols configuration        ######
 ##**************************************************
 ##    #}
 protocols {
+{#
+**************************************************
+###         ISI        ######
+###**************************************************
+###    #}
+#
     isis {
 {% if node.isis.propagate is defined %}
         export {{ node.isis.propagate }};
@@ -185,21 +204,54 @@ protocols {
         }
 
     }
+{#
+**************************************************
+###         MPLS        ######
+###**************************************************
+###    #}
+#
     mpls {
 {% for intf,intf_attr in node.links.items()|sort %}
            interface {{ intf }};
 {% endfor %}
+{% if node.rsvp is defined and node.rsvp !=1 %}
+   apply-groups GR-LSP;
+   optimize-timer 30;
+{% for rsvp_dst,rsvp_attr in node.rsvp.items()|sort %}
+           label-switched-path {{ inventory_hostname }}-->{{ rsvp_dst }} to {{ rsvp_attr.ip }};
+{% endfor %}
+{% endif%}
    }
-
+{#
+**************************************************
+###         LDP configuration        ######
+###**************************************************
+###    #}
+#
    ldp {
 	   interface lo0.0;
            session-protection;
            deaggregate;
            track-igp-metric;
-{% for intf, intf_attr in node.links.items()|sort %}
+{% for intf,intf_attr in node.links.items()|sort %}
 {% if intf_attr.ldp is defined and intf_attr.ldp == 1  %}
            interface {{ intf }};
 {% endif %}
 {% endfor %}
    }
+{#
+**************************************************
+###         RSVP configuration        ######
+###**************************************************
+###    #}
+#
+{% if node.rsvp is defined%}
+   rsvp {
+{% for intf,intf_attr in node.links.items()|sort %}
+{% if intf_attr.rsvp is defined and intf_attr.rsvp == 1  %}
+           interface {{ intf }};
+{% endif %}
+{% endfor %}
+   }
+{% endif %}
 }

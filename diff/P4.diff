@@ -1,10 +1,10 @@
 --- 
 +++ 
-@@ -106,6 +106,7 @@
+@@ -141,6 +141,7 @@
   !
+  interface GigabitEthernet0/0/0/0.46
+  !
++ reoptimize 30
  !
  mpls ldp
-+ session protection
-  address-family ipv4
-   label
-    local
+  session protection
