@@ -1,8 +1,18 @@
 {% set node = nodes[inventory_hostname] %}
 !
+{#
+**************************************************
+###         System configuration            ######
+**************************************************
+#}
 hostname {{inventory_hostname}}
 domain name croclab.ru
 !
+{#
+**************************************************
+###         Interface configuration            ######
+**************************************************
+#}
 interface Loopback0
  ipv4 address {{node.rid}}/32
 !
@@ -27,6 +37,12 @@ interface {{intf.split('.')[0]}}
 {% endif %}
 {% endfor %}
 !
+{#
+**************************************************
+###         Routing configuration            ######
+**************************************************
+#}
+
 router static
  address-family ipv4 unicast
   0.0.0.0/0 172.23.84.1
@@ -38,11 +54,21 @@ route-policy ISIS_LEAK
    endif
 end-policy
 !
+{#
+**************************************************
+###         ISIS configuration            ######
+**************************************************
+#}
 router isis {{common.isis.process}}
-net {{node.isis.net}}
-is-type {{node.isis.level}}
-set-overload-bit on-startup wait-for-bgp
-address-family ipv4 unicast
+{% if node.isis.area is defined %}
+ net 49.{{node.isis.area}}.0000.0000.{{node.isis.net}}.00
+{% endif %}
+{% if node.isis.area0 is defined %}
+ net 49.{{node.isis.area0}}.0000.0000.{{node.isis.net}}.00
+{% endif %}
+ is-type {{node.isis.level}}
+ set-overload-bit on-startup wait-for-bgp
+ address-family ipv4 unicast
   metric-style wide
   ispf
   mpls traffic-eng level-2-only
@@ -66,23 +92,44 @@ interface Loopback0
    metric {{intf_attr.cost}}
 {% if intf_attr.ldp is defined and intf_attr.ldp == 1  %}
    mpls ldp sync
-{% endif %}
-{% endfor %}
-!
-mpls ldp
- session protection
- address-family ipv4
-  label
-   local
-    allocate for host-routes
-{% for intf, intf_attr in node.links.items()|sort %}
-{% if intf_attr.ldp is defined and intf_attr.ldp == 1  %}
- interface {{ intf }}
 {% else %}
- no interface {{ intf }} 
+   no mpls ldp sync
 {% endif %}
 {% endfor %}
 !
+{#
+**************************************************
+###         Groups configuration            ######
+**************************************************
+#}
+group GR-LSP
+ interface 'tunnel-te.*'
+  ipv4 unnumbered Loopback0
+  autoroute announce
+  record-route
+  path-option 1 dynamic
+end-group
+!
+{#
+**************************************************
+###         TE tunnels configuration            ######
+#**************************************************
+#}
+{% if node.rsvp is defined and node.rsvp !=1 %}
+{% for rsvp_dst,rsvp_attr in node.rsvp.items()|sort %}
+no interface tunnel-{{ rsvp_attr.tun }}
+interface tunnel-{{ rsvp_attr.tun }}
+apply-group GR-LSP
+signalled-name {{ inventory_hostname }}-->{{ rsvp_dst }}
+destination {{ rsvp_attr.ip }}
+{% endfor %}
+{% endif%}
+!
+{#
+**************************************************
+###         RSVP-TE configuration            ######
+**************************************************
+#}
 rsvp
 {% for intf, intf_attr in node.links.items()|sort %}
 {% if intf_attr.rsvp is defined and intf_attr.rsvp == 1  %}
@@ -94,6 +141,7 @@ rsvp
 !
 mpls traffic-eng
 reoptimize 30
+reoptimize timers delay installation 15
 {% for intf, intf_attr in node.links.items()|sort %}
 {% if intf_attr.rsvp is defined and intf_attr.rsvp == 1  %}
  interface {{ intf }}
@@ -102,23 +150,35 @@ reoptimize 30
 {% endif %}
 {% endfor %}
 !
-group GR-LSP
- interface 'tunnel-te.*'
-  ipv4 unnumbered Loopback0
-  autoroute announce
-  record-route
-  path-option 1 dynamic
-end-group
-!
+{#
+**************************************************
+###         LDP configuration            ######
+#**************************************************
+##}
+mpls ldp
+ session protection
+  address-family ipv4
+    label
+       local
+           allocate for host-routes
+{% for intf, intf_attr in node.links.items()|sort %}
+{% if intf_attr.ldp is defined and intf_attr.ldp == 1  %}
+ interface {{ intf }}
+  address-family ipv4
+{% endif %}
+{% endfor %}
 {% if node.rsvp is defined and node.rsvp !=1 %}
 {% for rsvp_dst,rsvp_attr in node.rsvp.items()|sort %}
-interface tunnel-{{ rsvp_attr.tun }}
- apply-group GR-LSP
- signalled-name {{ inventory_hostname }}-->{{ rsvp_dst }}
- destination {{ rsvp_attr.ip }}
+ interface tunnel-{{ rsvp_attr.tun }}
+  address-family ipv4
 {% endfor %}
 {% endif%}
 !
+{#
+#**************************************************
+###         System configuration            ######
+**************************************************
+#}
 mpls oam
 ssh server v2
 ssh server logging

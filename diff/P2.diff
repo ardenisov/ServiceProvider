@@ -1,0 +1,19 @@
+--- 
++++ 
+@@ -92,14 +92,14 @@
+  interface GigabitEthernet0/0/0/0.12
+   point-to-point
+   address-family ipv4 unicast
+-   metric 100
++   metric 10
+   !
+  !
+  interface GigabitEthernet0/0/0/0.23
+   circuit-type level-2-only
+   point-to-point
+   address-family ipv4 unicast
+-   metric 1000
++   metric 100
+   !
+  !
+  interface GigabitEthernet0/0/0/0.24

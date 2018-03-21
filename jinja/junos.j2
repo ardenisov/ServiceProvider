@@ -64,7 +64,12 @@ interfaces {
                 address {{node.rid}}/32;
             }
 	    family iso {
-		address {{ node.isis.net }}
+{% if node.isis.area is defined %}
+		address 49.{{ node.isis.area }}.0000.0000.{{ node.isis.net }}.00;
+{% endif %}
+{% if node.isis.area0 is defined %}
+                address 49.{{ node.isis.area0 }}.0000.0000.{{ node.isis.net }}.00;
+{% endif %}
 	    }
         }
     
@@ -150,11 +155,13 @@ policy-options {
 groups {
 	GR-LSP {
 		protocols {
-			mpls label-switched-path <*> adaptive;
+			mpls {
+				label-switched-path <*> ldp-tunneling;
+				label-switched-path <*>	adaptive;
+			}
 		}
 	}
 }
-
 {#
 **************************************************
 ###         Protocols configuration        ######
@@ -217,6 +224,7 @@ protocols {
 {% if node.rsvp is defined and node.rsvp !=1 %}
    apply-groups GR-LSP;
    optimize-timer 30;
+   optimize-switchover-delay 15;
 {% for rsvp_dst,rsvp_attr in node.rsvp.items()|sort %}
            label-switched-path {{ inventory_hostname }}-->{{ rsvp_dst }} to {{ rsvp_attr.ip }};
 {% endfor %}

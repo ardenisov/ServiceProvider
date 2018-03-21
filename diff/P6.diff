@@ -1,10 +1,20 @@
 --- 
 +++ 
-@@ -134,6 +134,7 @@
+@@ -93,7 +93,7 @@
+   circuit-type level-2-only
+   point-to-point
+   address-family ipv4 unicast
+-   metric 1000
++   metric 100
+   !
   !
+  interface GigabitEthernet0/0/0/0.46
+@@ -106,7 +106,7 @@
   interface GigabitEthernet0/0/0/0.56
+   point-to-point
+   address-family ipv4 unicast
+-   metric 100
++   metric 10
+   !
   !
-+ reoptimize 30
- !
- mpls ldp
-  session protection
+  interface GigabitEthernet0/0/0/0.644
