@@ -7,15 +7,18 @@
 common:
         bgp: {as: 65000}
         isis: {process: 65000}
-
 nodes:
         PE2:
                 mgmt: 172.23.84.201
                 rid:  172.16.0.22
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.22}
+                        PL_B: {id: 1, ip: 172.16.1.22}
+                        PL_C: {id: 2, ip: 172.16.2.22}
                 links:
-                        Gi0/0/0/0.222: {ip: 10.0.0.19/31, remote: P2, cost: 10, vlan: 222, ldp: 1, circuit_type: level-1}
-                        Gi0/0/0/0.1122: {ip: 10.0.0.0/31, remote: PE1, cost: 1000, vlan: 1122, ldp: 1, circuit_type: level-1}
-                isis: {area: "0001", net: "0022", level: level-1, lolvl: level-1}
+                        Gi0/0/0/0.222: {ip: 10.0.0.19/31, remote: P2, cost: 10, vlan: 222, circuit_type: level-1}
+                        Gi0/0/0/0.1122: {ip: 10.0.0.0/31, remote: PE1, cost: 1000, vlan: 1122, circuit_type: level-1}
+                isis: {area: "0001", net: "0022", level: level-1, lolvl: level-1, protection: per-link}
                 bgp:
                         ibgp:
                                 peers:
@@ -27,26 +30,38 @@ nodes:
         P2:
                 mgmt: 172.23.84.202
                 rid:  172.16.0.2
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.2}
+                        PL_B: {id: 1, ip: 172.16.1.2}
+                        PL_C: {id: 2, ip: 172.16.2.2}
                 links:
-                        Gi0/0/0/0.12: {ip: 10.0.0.21/31, remote: P1, cost: 10, vlan: 12, circuit_type: level-1-2, rsvp: 1}
-                        Gi0/0/0/0.23: {ip: 10.0.0.25/31, remote: P3, cost: 100, vlan: 23, circuit_type: level-2-only, rsvp: 1}
-                        Gi0/0/0/0.24: {ip: 10.0.0.17/31, remote: P4, cost: 10, vlan: 24, circuit_type: level-2-only, rsvp: 1}
-                        Gi0/0/0/0.222: {ip: 10.0.0.18/31, remote: PE2, cost: 10, vlan: 222, ldp: 1, circuit_type: level-1}
-                isis: {area0: "0000", area: "0001", net: "0002",  level: level-1-2, lolvl: level-1-2, propagate: ISIS_LEAK}
-                rsvp:
-                        P1: {ip: 172.16.0.1, tun: te1}
-                        P5: {ip: 172.16.0.5, tun: te5}
-                        P6: {ip: 172.16.0.6, tun: te6}
+                        Gi0/0/0/0.12: {ip: 10.0.0.21/31, remote: P1, cost: 10, tecost: 100, vlan: 12, circuit_type: level-1-2, rsvp: 1}
+                        Gi0/0/0/0.23: {ip: 10.0.0.25/31, remote: P3, cost: 10, tecost: 10,  vlan: 23, circuit_type: level-2-only, rsvp: 1}
+                        Gi0/0/0/0.24: {ip: 10.0.0.17/31, remote: P4, cost: 10, tecost: 100, vlan: 24, circuit_type: level-2-only, rsvp: 1}
+                        Gi0/0/0/0.222: {ip: 10.0.0.18/31, remote: PE2, cost: 10, vlan: 222, circuit_type: level-1}
+                isis: {area0: "0000", area: "0001", net: "0002",  level: level-1-2, lolvl: level-1-2, propagate: ISIS_LEAK, protection: per-prefix}
+                rsvp: 
+                        P1_PL_A: {dst: 172.16.0.1, tun: te1, cost_type: te, tldp: 0, route: {172.16.0.11}}
+                        P5_PL_A: {dst: 172.16.0.5, tun: te5, cost_type: te, tldp: 0, route: {172.16.0.33, 172.16.0.44}}
+                        P6_PL_A: {dst: 172.16.0.6, tun: te6, cost_type: te, tldp: 0, route: {172.16.0.33, 172.16.0.44}}
+                        P1_PL_C: {dst: 172.16.0.1, tun: te21, cost_type: igp, tldp: 1, route: {172.16.2.11}}
+                        P5_PL_C: {dst: 172.16.0.5, tun: te25, cost_type: igp, tldp: 1, route: {172.16.2.33, 172.16.2.44}}
+                        P6_PL_C: {dst: 172.16.0.6, tun: te26, cost_type: igp, tldp: 1, route: {172.16.2.33, 172.16.2.44}}
+
         P4:
                 mgmt: 172.23.84.203
                 rid:  172.16.0.4
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.4}
+                        PL_B: {id: 1, ip: 172.16.1.4}
+                        PL_C: {id: 2, ip: 172.16.2.4}
                 links:
-                        Gi0/0/0/0.14: {ip: 10.0.0.23/31, remote: P1, cost: 100, vlan: 14, circuit_type: level-2-only, rsvp: 1}
-                        Gi0/0/0/0.24: {ip: 10.0.0.16/31, remote: P2, cost: 10, vlan: 24, circuit_type: level-2-only, rsvp: 1}
-                        Gi0/0/0/0.34: {ip: 10.0.0.27/31, remote: P3, cost: 10, vlan: 34, circuit_type: level-2-only, rsvp: 1}
-                        Gi0/0/0/0.45: {ip: 10.0.0.31/31, remote: P5, cost: 100, vlan: 45, circuit_type: level-2-only, rsvp: 1}
-                        Gi0/0/0/0.46: {ip: 10.0.0.15/31, remote: P6, cost: 10, vlan: 46, circuit_type: level-2-only, rsvp: 1}
-                isis: {area0: "0000", net: "0004", level: level-2-only, lolvl: level-2-only}
+                        Gi0/0/0/0.14: {ip: 10.0.0.23/31, remote: P1, cost: 10, tecost: 10, vlan: 14, circuit_type: level-2-only, rsvp: 1}
+                        Gi0/0/0/0.24: {ip: 10.0.0.16/31, remote: P2, cost: 10, tecost: 100, vlan: 24, circuit_type: level-2-only, rsvp: 1}
+                        Gi0/0/0/0.34: {ip: 10.0.0.27/31, remote: P3, cost: 10, tecost: 10, vlan: 34, circuit_type: level-2-only, rsvp: 1}
+                        Gi0/0/0/0.45: {ip: 10.0.0.31/31, remote: P5, cost: 10, tecost: 10, vlan: 45, circuit_type: level-2-only, rsvp: 1}
+                        Gi0/0/0/0.46: {ip: 10.0.0.15/31, remote: P6, cost: 10, tecost: 100,vlan: 46, circuit_type: level-2-only, rsvp: 1}
+                isis: {area0: "0000", net: "0004", level: level-2-only, lolvl: level-2-only, protection: per-prefix}
                 rsvp: 1
                 bgp:
                         ibgp:
@@ -62,23 +77,34 @@ nodes:
         P6:
                 mgmt: 172.23.84.204
                 rid:  172.16.0.6
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.6}
+                        PL_B: {id: 1, ip: 172.16.1.6}
+                        PL_C: {id: 2, ip: 172.16.2.6}
                 links:
-                        Gi0/0/0/0.36: {ip: 10.0.0.29/31, remote: P3, cost: 100, vlan: 36, circuit_type: level-2-only, rsvp: 1}
-                        Gi0/0/0/0.46: {ip: 10.0.0.14/31, remote: P4, cost: 10, vlan: 46, circuit_type: level-2-only, rsvp: 1}
-                        Gi0/0/0/0.56: {ip: 10.0.0.33/31, remote: P5, cost: 10, vlan: 56, circuit_type: level-1-2, rsvp: 1}
-                        Gi0/0/0/0.644: {ip: 10.0.0.13/31, remote: PE4, cost: 10, vlan: 644, ldp: 1, circuit_type: level-1}
-                isis: {area0: "0000", area: "0002", net: "0006", level: level-1-2, lolvl: level-1-2, propagate: ISIS_LEAK}
+                        Gi0/0/0/0.36: {ip: 10.0.0.29/31, remote: P3, cost: 10, tecost: 10, vlan: 36, circuit_type: level-2-only, rsvp: 1}
+                        Gi0/0/0/0.46: {ip: 10.0.0.14/31, remote: P4, cost: 10, tecost: 100, vlan: 46, circuit_type: level-2-only, rsvp: 1}
+                        Gi0/0/0/0.56: {ip: 10.0.0.33/31, remote: P5, cost: 10, tecost: 100, vlan: 56, circuit_type: level-1-2, rsvp: 1}
+                        Gi0/0/0/0.644: {ip: 10.0.0.13/31, remote: PE4, cost: 10, vlan: 644, circuit_type: level-1}
+                isis: {area0: "0000", area: "0002", net: "0006", level: level-1-2, lolvl: level-1-2, propagate: ISIS_LEAK, protection: per-prefix}
                 rsvp:
-                        P1: {ip: 172.16.0.1, tun: te1}
-                        P5: {ip: 172.16.0.5, tun: te5}
-                        P2: {ip: 172.16.0.2, tun: te2}
+                        P1_PL_A: {dst: 172.16.0.1, tun: te1, cost_type: te, tldp: 0, route: {172.16.0.11, 172.16.0.22}}
+                        P2_PL_A: {dst: 172.16.0.2, tun: te2, cost_type: te, tldp: 0, route: {172.16.0.11, 172.16.0.22}}
+                        P5_PL_A: {dst: 172.16.0.5, tun: te5, cost_type: te, tldp: 0, route: {172.16.0.33}}
+                        P1_PL_C: {dst: 172.16.0.1, tun: te21, cost_type: igp, tldp: 1, route: {172.16.2.11, 172.16.2.2}}
+                        P2_PL_C: {dst: 172.16.0.2, tun: te22, cost_type: igp, tldp: 1, route: {172.16.2.11, 172.16.2.22}}
+                        P5_PL_C: {dst: 172.16.0.5, tun: te25, cost_type: igp, tldp: 1, route: {172.16.2.33}}
         PE4:
                 mgmt: 172.23.84.205
                 rid:  172.16.0.44
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.44}
+                        PL_B: {id: 1, ip: 172.16.1.44}
+                        PL_C: {id: 2, ip: 172.16.2.44}
                 links:
-                        Gi0/0/0/0.644: {ip: 10.0.0.12/31, remote: P6, cost: 10, vlan: 644, ldp: 1, circuit_type: level-1}
-                        Gi0/0/0/0.3344: {ip: 10.0.0.11/31, remote: PE3, cost: 1000, vlan: 3344, ldp: 1, circuit_type: level-1}
-                isis: {area: "0002", net: "0044", level: level-1, lolvl: level-1}
+                        Gi0/0/0/0.644: {ip: 10.0.0.12/31, remote: P6, cost: 10, vlan: 644, circuit_type: level-1}
+                        Gi0/0/0/0.3344: {ip: 10.0.0.11/31, remote: PE3, cost: 1000, vlan: 3344, circuit_type: level-1}
+                isis: {area: "0002", net: "0044", level: level-1, lolvl: level-1, protection: per-link}
                 bgp:
                         ibgp:
                                 peers:
@@ -90,10 +116,14 @@ nodes:
         PE1:
                 mgmt: 172.23.84.206
                 rid:  172.16.0.11
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.11}
+                        PL_B: {id: 1, ip: 172.16.1.11}
+                        PL_C: {id: 2, ip: 172.16.2.11}
                 links:
-                        ge-0/0/0.111: {ip: 10.0.0.2, remote: P1, cost: 10, vlan: 111, ldp: 1, circuit_type: level-1}
-                        ge-0/0/0.1122: {ip: 10.0.0.1, remote: PE2, cost: 1000, vlan: 1122, ldp: 1, circuit_type: level-1}
-                isis: {area: "0001", net: "0011", level: level-1, lolvl: level-1}
+                        ge-0/0/0.111: {ip: 10.0.0.2, remote: P1, cost: 10, vlan: 111, circuit_type: level-1}
+                        ge-0/0/0.1122: {ip: 10.0.0.1, remote: PE2, cost: 1000, vlan: 1122, circuit_type: level-1}
+                isis: {area: "0001", net: "0011", level: level-1, lolvl: level-1, protection: link-protection}
                 bgp:
                         ibgp:
                                 peers:
@@ -105,26 +135,37 @@ nodes:
         P1:
                 mgmt: 172.23.84.207
                 rid:  172.16.0.1
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.1}
+                        PL_B: {id: 1, ip: 172.16.1.1}
+                        PL_C: {id: 2, ip: 172.16.2.1}
                 links:
-                        ge-0/0/0.111: {ip: 10.0.0.3, remote: P1, cost: 10, vlan: 111, ldp: 1, circuit_type: level-1}
-                        ge-0/0/0.12: {ip: 10.0.0.20, remote: P2, cost: 10, vlan: 12, circuit_type: level-1-2, rsvp: 1}
-                        ge-0/0/0.14: {ip: 10.0.0.22, remote: P4, cost: 100, vlan: 14, circuit_type: level-2-only, rsvp: 1}
-                        ge-0/0/0.13: {ip: 10.0.0.4, remote: P3, cost: 10, vlan: 13, circuit_type: level-2-only, rsvp: 1}
-                isis: {area0: "0000", area: "0001", net: "0001", level: level-1-2, lolvl: level-1-2, propagate: ISIS_LEAK}
-                rsvp:
-                        P2: {ip: 172.16.0.2}
-                        P5: {ip: 172.16.0.5}
-                        P6: {ip: 172.16.0.6}
+                        ge-0/0/0.111: {ip: 10.0.0.3, remote: PE1, cost: 10, vlan: 111, circuit_type: level-1}
+                        ge-0/0/0.12: {ip: 10.0.0.20, remote: P2, cost: 10, tecost: 100, vlan: 12, circuit_type: level-1-2, rsvp: 1}
+                        ge-0/0/0.14: {ip: 10.0.0.22, remote: P4, cost: 10, tecost: 10,  vlan: 14, circuit_type: level-2-only, rsvp: 1}
+                        ge-0/0/0.13: {ip: 10.0.0.4, remote: P3, cost: 10, tecost: 100, vlan: 13, circuit_type: level-2-only, rsvp: 1}
+                isis: {area0: "0000", area: "0001", net: "0001", level: level-1-2, lolvl: level-1-2, propagate: ISIS_LEAK, protection: node-link-protection}
+                rsvp: 
+                        P2_PL_A: {dst: 172.16.0.2, tun: te2, cost_type: te, tldp: 0, route: {172.16.0.22}}
+                        P5_PL_A: {dst: 172.16.0.5, tun: te5, cost_type: te, tldp: 0, route: {172.16.0.33, 172.16.0.44}}
+                        P6_PL_A: {dst: 172.16.0.6, tun: te6, cost_type: te, tldp: 0, route: {172.16.0.33, 172.16.0.44}}
+                        P2_PL_C: {dst: 172.16.0.2, tun: te22, cost_type: igp, tldp: 1, route: {172.16.2.22, 172.16.0.2}}
+                        P5_PL_C: {dst: 172.16.0.5, tun: te25, cost_type: igp, tldp: 1, route: {172.16.2.33, 172.16.2.44, 172.16.0.5}}
+                        P6_PL_C: {dst: 172.16.0.6, tun: te26, cost_type: igp, tldp: 1, route: {172.16.2.33, 172.16.2.44, 172.16.0.6}}
         P3:
                 mgmt: 172.23.84.208
                 rid:  172.16.0.3
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.3}
+                        PL_B: {id: 1, ip: 172.16.1.3}
+                        PL_C: {id: 2, ip: 172.16.2.3}
                 links:
-                        ge-0/0/0.13: {ip: 10.0.0.5, remote: P1, cost: 10, vlan: 13, circuit_type: level-2-only, rsvp: 1}
-                        ge-0/0/0.23: {ip: 10.0.0.24, remote: P2, cost: 100, vlan: 23, circuit_type: level-2-only, rsvp: 1}
-                        ge-0/0/0.34: {ip: 10.0.0.26, remote: P4, cost: 10, vlan: 34, circuit_type: level-2-only, rsvp: 1}
-                        ge-0/0/0.36: {ip: 10.0.0.28, remote: P6, cost: 100, vlan: 36, circuit_type: level-2-only, rsvp: 1}
-                        ge-0/0/0.35: {ip: 10.0.0.6, remote: P5, cost: 10, vlan: 35, circuit_type: level-2-only, rsvp: 1}
-                isis: {area0: "0000", net: "0003", level: level-2-only, lolvl: level-2-only}
+                        ge-0/0/0.13: {ip: 10.0.0.5, remote: P1, cost: 10, tecost: 100, vlan: 13, circuit_type: level-2-only, rsvp: 1}
+                        ge-0/0/0.23: {ip: 10.0.0.24, remote: P2, cost: 10, tecost: 10, vlan: 23, circuit_type: level-2-only, rsvp: 1}
+                        ge-0/0/0.34: {ip: 10.0.0.26, remote: P4, cost: 10, tecost: 10, vlan: 34, circuit_type: level-2-only, rsvp: 1}
+                        ge-0/0/0.36: {ip: 10.0.0.28, remote: P6, cost: 10, tecost: 10, vlan: 36, circuit_type: level-2-only, rsvp: 1}
+                        ge-0/0/0.35: {ip: 10.0.0.6, remote: P5, cost: 10, tecost: 100, vlan: 35, circuit_type: level-2-only, rsvp: 1}
+                isis: {area0: "0000", net: "0003", level: level-2-only, lolvl: level-2-only, protection: node-link-protection}
                 rsvp: 1
                 bgp:
                         ibgp:
@@ -140,23 +181,35 @@ nodes:
         P5:
                 mgmt: 172.23.84.209
                 rid:  172.16.0.5
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.5}
+                        PL_B: {id: 1, ip: 172.16.1.5}
+                        PL_C: {id: 2, ip: 172.16.2.5}
                 links:
-                        ge-0/0/0.35: {ip: 10.0.0.7, remote: P3, cost: 10, vlan: 35, circuit_type: level-2-only, rsvp: 1}
-                        ge-0/0/0.45: {ip: 10.0.0.30, remote: P4, cost: 100, vlan: 45, circuit_type: level-2-only, rsvp: 1}
-                        ge-0/0/0.56: {ip: 10.0.0.32, remote: P6, cost: 10, vlan: 56, circuit_type: level-1-2, rsvp: 1}
-                        ge-0/0/0.533: {ip: 10.0.0.8, remote: PE3, cost: 10, vlan: 533, ldp: 1, circuit_type: level-1}
-                isis: {area0: "0000", area: "0002", net: "0005", level: level-1-2, lolvl: level-1-2, propagate: ISIS_LEAK}
-                rsvp:
-                        P1: {ip: 172.16.0.1}
-                        P2: {ip: 172.16.0.2}
-                        P6: {ip: 172.16.0.6}
+                        ge-0/0/0.35: {ip: 10.0.0.7, remote: P3, cost: 10, tecost: 100, vlan: 35, circuit_type: level-2-only, rsvp: 1}
+                        ge-0/0/0.45: {ip: 10.0.0.30, remote: P4, cost: 10, tecost: 10, vlan: 45, circuit_type: level-2-only, rsvp: 1}
+                        ge-0/0/0.56: {ip: 10.0.0.32, remote: P6, cost: 10, tecost: 100, vlan: 56, circuit_type: level-1-2, rsvp: 1}
+                        ge-0/0/0.533: {ip: 10.0.0.8, remote: PE3, cost: 10, vlan: 533, circuit_type: level-1}
+                isis: {area0: "0000", area: "0002", net: "0005", level: level-1-2, lolvl: level-1-2, propagate: ISIS_LEAK, protection: node-link-protection}
+                rsvp: 
+                        P1_PL_A: {dst: 172.16.0.1, tun: te1, cost_type: te, tldp: 0, route: {172.16.0.11, 172.16.0.22}}
+                        P2_PL_A: {dst: 172.16.0.2, tun: te2, cost_type: te, tldp: 0, route: {172.16.0.11, 172.16.0.22}}
+                        P6_PL_A: {dst: 172.16.0.6, tun: te6, cost_type: te, tldp: 0, route: {172.16.0.44}}
+                        P1_PL_C: {dst: 172.16.0.1, tun: te21, cost_type: igp, tldp: 1, route: {172.16.2.11, 172.16.2.22, 172.16.0.1}}
+                        P2_PL_C: {dst: 172.16.0.2, tun: te22, cost_type: igp, tldp: 1, route: {172.16.2.11, 172.16.2.22, 172.16.0.2}}
+                        P6_PL_C: {dst: 172.16.0.6, tun: te26, cost_type: igp, tldp: 1, route: {172.16.2.44, 172.16.0.6}}
+
         PE3:
                 mgmt: 172.23.84.210
                 rid:  172.16.0.33
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.33}
+                        PL_B: {id: 1, ip: 172.16.1.33}
+                        PL_C: {id: 2, ip: 172.16.2.33}
                 links:
-                        ge-0/0/0.533: {ip: 10.0.0.9, remote: P5, cost: 10, vlan: 533, ldp: 1, circuit_type: level-1}
-                        ge-0/0/0.3344: {ip: 10.0.0.10, remote: PE4, cost: 1000, vlan: 3344, ldp: 1, circuit_type: level-1}
-                isis: {area: "0002", net: "0033", level: level-1, lolvl: level-1}
+                        ge-0/0/0.533: {ip: 10.0.0.9, remote: P5, cost: 10, vlan: 533, circuit_type: level-1}
+                        ge-0/0/0.3344: {ip: 10.0.0.10, remote: PE4, cost: 1000, vlan: 3344, circuit_type: level-1}
+                isis: {area: "0002", net: "0033", level: level-1, lolvl: level-1, protection: link-protection}
                 bgp:
                         ibgp:
                                 peers:

@@ -3,7 +3,7 @@
    hosts: "{{ target }}"
    tasks:
       - include_vars: "/etc/ansible/SP/nodes.yml"
-      - name: create directory for cfg files
+      - name: create directory for configs
         file: path=/etc/ansible/SP/config/{{dev_os}} state=directory
         run_once: true
       - name: Gen cfg
@@ -19,4 +19,5 @@
         config_file: /etc/ansible/SP/config/{{dev_os}}/{{inventory_hostname}}.cfg
         commit_changes: "{{commit}}"
         diff_file: /etc/ansible/SP/diff/{{inventory_hostname}}.diff
+        timeout: 20
 #      when: "inventory_hostname in nodes.keys()"

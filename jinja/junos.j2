@@ -59,10 +59,12 @@ interfaces {
         }
     }
     lo0 {
-        unit 0 {
+	unit 0 {
             family inet {
-                address {{node.rid}}/32;
-            }
+{% for lo,lo_attr in node.loops.items() %}
+                address {{lo_attr.ip}}/32;
+{% endfor %}
+	    }
 	    family iso {
 {% if node.isis.area is defined %}
 		address 49.{{ node.isis.area }}.0000.0000.{{ node.isis.net }}.00;
@@ -72,7 +74,6 @@ interfaces {
 {% endif %}
 	    }
         }
-    
 {% for intf,intf_attr in node.links.items()|sort %}
 {% set newintf = intf.split('.')[0] %}
 {% if oldintf is defined and oldintf == newintf%}
@@ -135,7 +136,7 @@ policy-options {
         from {
             protocol isis;
             level 2;
-            route-filter 172.16.0.0/24 orlonger;
+            route-filter 172.16.0.0/22 orlonger;
         }
         to {
             protocol isis;
@@ -145,7 +146,35 @@ policy-options {
     }
     	policy-statement PL-LB {
     	   then load-balance per-packet;
-}
+	}
+	policy-statement PL-LDP-EGRESS {
+           term LOOPBACK-B-C {
+            from {
+{% for lo,lo_attr in node.loops.items() %}
+{% if lo == 'PL_A'%}
+{% else %}
+                route-filter {{ lo_attr.ip }}/32 exact;
+{% endif %}
+{% endfor %}
+            }
+            then accept;
+        	}
+        term REST {
+            then reject;
+        	}
+    	}	
+	policy-statement PL-LDP-EXPORT {
+	   term LOOPBACK-B-C {
+		from {
+		   route-filter 172.16.1.0/24 orlonger;
+		   route-filter 172.16.2.0/24 orlonger;
+		}
+		then accept;
+	   }
+	   term REST {
+		then reject;
+	   }
+	}
 }
 {#
 **************************************************
@@ -156,8 +185,18 @@ groups {
 	GR-LSP {
 		protocols {
 			mpls {
-				label-switched-path <*> ldp-tunneling;
 				label-switched-path <*>	adaptive;
+			}
+		}
+	}
+	GR-ISIS {
+		protocols {
+			isis {
+				interface "<*[es]*>" {
+{% if node.isis.protection is defined %}
+					{{ node.isis.protection }};
+{% endif %}
+				}
 			}
 		}
 	}
@@ -178,6 +217,8 @@ protocols {
 {% if node.isis.propagate is defined %}
         export {{ node.isis.propagate }};
 {% endif %}
+	apply-groups GR-ISIS;
+	backup-spf-options node-link-degradation;
         overload timeout 60;
         level 1 wide-metrics-only;
         level 2 wide-metrics-only;        
@@ -188,14 +229,15 @@ protocols {
                 level 2 metric {{ intf_attr.cost }};
 		level 1 metric {{ intf_attr.cost }};
 {%              endif %}
+{%              if intf_attr.tecost is defined and intf_attr.tecost != 0 %}
+                level 2 te-metric {{ intf_attr.tecost }};
+{%              endif %}
 {%              if intf_attr.circuit_type is defined and intf_attr.circuit_type == "level-2-only" %}
 		level 1 disable;
 {%              elif intf_attr.circuit_type is defined and intf_attr.circuit_type == "level-1" %}
                 level 2 disable;
 {%              endif %}
-{% if intf_attr.ldp is defined and intf_attr.ldp == 1  %}
                 ldp-synchronization;
-{% endif %}
 	}
 {% endfor %}
 	    interface fxp0.0 {
@@ -209,7 +251,6 @@ protocols {
                 level 2 disable;
 {%              endif %}
         }
-
     }
 {#
 **************************************************
@@ -226,7 +267,17 @@ protocols {
    optimize-timer 30;
    optimize-switchover-delay 15;
 {% for rsvp_dst,rsvp_attr in node.rsvp.items()|sort %}
-           label-switched-path {{ inventory_hostname }}-->{{ rsvp_dst }} to {{ rsvp_attr.ip }};
+           label-switched-path {{ inventory_hostname }}-->{{ rsvp_dst }} {
+		to {{ rsvp_attr.dst }};
+		no-install-to-address;
+{% for route in rsvp_attr.route %}
+		install {{ route }};
+{% endfor %}
+{% if rsvp_attr.tldp is defined and rsvp_attr.tldp == 1 %}
+		ldp-tunneling;
+{% endif %}
+	   }
+		
 {% endfor %}
 {% endif%}
    }
@@ -237,14 +288,14 @@ protocols {
 ###    #}
 #
    ldp {
+	   export PL-LDP-EXPORT;
+	   egress-policy PL-LDP-EGRESS;
 	   interface lo0.0;
-           session-protection;
+           session-protection timeout 600;
            deaggregate;
            track-igp-metric;
 {% for intf,intf_attr in node.links.items()|sort %}
-{% if intf_attr.ldp is defined and intf_attr.ldp == 1  %}
            interface {{ intf }};
-{% endif %}
 {% endfor %}
    }
 {#

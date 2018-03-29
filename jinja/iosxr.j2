@@ -13,8 +13,10 @@ domain name croclab.ru
 ###         Interface configuration            ######
 **************************************************
 #}
-interface Loopback0
- ipv4 address {{node.rid}}/32
+{% for lo,lo_attr in node.loops.items() %}
+interface Loopback{{ lo_attr.id }}
+ ipv4 address {{lo_attr.ip}}/32
+{% endfor %}
 !
 interface MgmtEth0/0/CPU0/0
  description "OOB to MGMT Network"
@@ -39,20 +41,62 @@ interface {{intf.split('.')[0]}}
 !
 {#
 **************************************************
+##         Groups configuration            ######
+**************************************************
+#}
+group GR-LSP
+ interface 'tunnel-te.*'
+  ipv4 unnumbered Loopback0
+  record-route
+  path-option 1 dynamic
+ !
+end-group
+!
+group GR-ISIS
+ router isis '.*'
+  interface 'GigabitEthernet.*'
+   point-to-point
+   address-family ipv4 unicast
+{% if node.isis.protection is defined %}
+    fast-reroute {{ node.isis.protection }}
+{% endif %}
+   mpls ldp sync
+ !
+end-group
+!
+{#
+**************************************************
 ###         Routing configuration            ######
 **************************************************
 #}
-
 router static
  address-family ipv4 unicast
   0.0.0.0/0 172.23.84.1
  !
 !
 route-policy ISIS_LEAK
-   if destination in (172.16.0.0/24 eq 32) then
+   if destination in (172.16.0.0/22 eq 32) then
      pass
    endif
 end-policy
+!
+{#
+**************************************************
+##         TE tunnels configuration            ######
+**************************************************
+#}
+{% if node.rsvp is defined and node.rsvp !=1 %}
+{% for rsvp_dst,rsvp_attr in node.rsvp.items()|sort %}
+interface tunnel-{{ rsvp_attr.tun }}
+ apply-group GR-LSP
+ signalled-name {{ inventory_hostname }}-->{{ rsvp_dst }}
+ path-selection metric {{ rsvp_attr.cost_type }}
+ destination {{ rsvp_attr.dst }}
+{% for route in rsvp_attr.route %}
+ autoroute destination {{ route }}
+{% endfor %}
+{% endfor %}
+{% endif %}
 !
 {#
 **************************************************
@@ -60,6 +104,9 @@ end-policy
 **************************************************
 #}
 router isis {{common.isis.process}}
+{% if node.isis.protection is defined %}
+apply-group GR-ISIS
+{% endif %}
 {% if node.isis.area is defined %}
  net 49.{{node.isis.area}}.0000.0000.{{node.isis.net}}.00
 {% endif %}
@@ -71,67 +118,37 @@ router isis {{common.isis.process}}
  address-family ipv4 unicast
   metric-style wide
   ispf
-  mpls traffic-eng level-2-only
+{% if node.rsvp is defined %}
+  mpls traffic-eng level-1-2
   mpls traffic-eng router-id Loopback0
+{% endif %}
 {% if node.isis.propagate is defined %}
   propagate level 2 into level 1 route-policy {{ node.isis.propagate }}
 {% endif %}
-interface Loopback0
+{% for lo,lo_attr in node.loops.items()|sort %}
+interface Loopback{{ lo_attr.id }}
   passive
   address-family ipv4 unicast
 {% if node.isis.lolvl is defined %}
   circuit-type {{node.isis.lolvl}}
 {% endif %}
+{% endfor %}
 {% for intf,intf_attr in node.links.items()|sort %}
  interface {{intf}}
-   point-to-point
 {% if intf_attr.circuit_type is defined %}
    circuit-type {{intf_attr.circuit_type}}
 {% endif %}
   address-family ipv4 unicast
    metric {{intf_attr.cost}}
-{% if intf_attr.ldp is defined and intf_attr.ldp == 1  %}
-   mpls ldp sync
-{% else %}
-   no mpls ldp sync
-{% endif %}
 {% endfor %}
 !
 {#
 **************************************************
-###         Groups configuration            ######
-**************************************************
-#}
-group GR-LSP
- interface 'tunnel-te.*'
-  ipv4 unnumbered Loopback0
-  autoroute announce
-  record-route
-  path-option 1 dynamic
-end-group
-!
-{#
-**************************************************
-###         TE tunnels configuration            ######
-#**************************************************
-#}
-{% if node.rsvp is defined and node.rsvp !=1 %}
-{% for rsvp_dst,rsvp_attr in node.rsvp.items()|sort %}
-no interface tunnel-{{ rsvp_attr.tun }}
-interface tunnel-{{ rsvp_attr.tun }}
-apply-group GR-LSP
-signalled-name {{ inventory_hostname }}-->{{ rsvp_dst }}
-destination {{ rsvp_attr.ip }}
-{% endfor %}
-{% endif%}
-!
-{#
-**************************************************
-###         RSVP-TE configuration            ######
+##         RSVP-TE configuration            ######
 **************************************************
 #}
 rsvp
-{% for intf, intf_attr in node.links.items()|sort %}
+{% for intf,intf_attr in node.links.items()|sort %}
 {% if intf_attr.rsvp is defined and intf_attr.rsvp == 1  %}
  interface {{ intf }}
 {% endif %}
@@ -142,9 +159,12 @@ rsvp
 mpls traffic-eng
 reoptimize 30
 reoptimize timers delay installation 15
-{% for intf, intf_attr in node.links.items()|sort %}
+{% for intf,intf_attr in node.links.items()|sort %}
 {% if intf_attr.rsvp is defined and intf_attr.rsvp == 1  %}
  interface {{ intf }}
+{% if intf_attr.tecost is defined and intf_attr.tecost != 0  %}
+ admin-weight {{ intf_attr.tecost }}
+{% endif %}
 {% else %}
  no interface {{ intf }}
 {% endif %}
@@ -153,29 +173,36 @@ reoptimize timers delay installation 15
 {#
 **************************************************
 ###         LDP configuration            ######
-#**************************************************
+**************************************************
 ##}
+ipv4 access-list AL-LOCAL-PLANE-B-C
+10 permit ipv4 172.16.1.0 0.0.0.255 any
+20 permit ipv4 172.16.2.0 0.0.0.255 any
+30 deny ipv4 any any
+!
 mpls ldp
  session protection
   address-family ipv4
     label
        local
-           allocate for host-routes
+          allocate for AL-LOCAL-PLANE-B-C
 {% for intf, intf_attr in node.links.items()|sort %}
-{% if intf_attr.ldp is defined and intf_attr.ldp == 1  %}
  interface {{ intf }}
   address-family ipv4
-{% endif %}
 {% endfor %}
 {% if node.rsvp is defined and node.rsvp !=1 %}
 {% for rsvp_dst,rsvp_attr in node.rsvp.items()|sort %}
+{% if rsvp_attr.tldp is defined and rsvp_attr.tldp == 1 %}
  interface tunnel-{{ rsvp_attr.tun }}
   address-family ipv4
+{% else %}
+ no interface tunnel-{{ rsvp_attr.tun }}
+{% endif %}
 {% endfor %}
-{% endif%}
+{% endif %}
 !
 {#
-#**************************************************
+**************************************************
 ###         System configuration            ######
 **************************************************
 #}

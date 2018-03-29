@@ -1,20 +1,55 @@
 --- 
 +++ 
-@@ -93,7 +93,7 @@
-   circuit-type level-2-only
-   point-to-point
-   address-family ipv4 unicast
--   metric 1000
-+   metric 100
-   !
-  !
-  interface GigabitEthernet0/0/0/0.46
-@@ -106,7 +106,7 @@
-  interface GigabitEthernet0/0/0/0.56
-   point-to-point
-   address-family ipv4 unicast
--   metric 100
-+   metric 10
-   !
-  !
-  interface GigabitEthernet0/0/0/0.644
+@@ -33,6 +33,52 @@
+ !
+ interface Loopback2
+  ipv4 address 172.16.2.6 255.255.255.255
++!
++interface tunnel-te1
++ apply-group GR-LSP
++ signalled-name P6-->P1_PL_A
++ autoroute destination 172.16.0.11
++ autoroute destination 172.16.0.22
++ destination 172.16.0.1
++ path-selection metric te
++!
++interface tunnel-te2
++ apply-group GR-LSP
++ signalled-name P6-->P2_PL_A
++ autoroute destination 172.16.0.11
++ autoroute destination 172.16.0.22
++ destination 172.16.0.2
++ path-selection metric te
++!
++interface tunnel-te5
++ apply-group GR-LSP
++ signalled-name P6-->P5_PL_A
++ autoroute destination 172.16.0.33
++ destination 172.16.0.5
++ path-selection metric te
++!
++interface tunnel-te21
++ apply-group GR-LSP
++ signalled-name P6-->P1_PL_C
++ autoroute destination 172.16.2.2
++ autoroute destination 172.16.2.11
++ destination 172.16.0.1
++ path-selection metric igp
++!
++interface tunnel-te22
++ apply-group GR-LSP
++ signalled-name P6-->P2_PL_C
++ autoroute destination 172.16.2.11
++ autoroute destination 172.16.2.22
++ destination 172.16.0.2
++ path-selection metric igp
++!
++interface tunnel-te25
++ apply-group GR-LSP
++ signalled-name P6-->P5_PL_C
++ autoroute destination 172.16.2.33
++ destination 172.16.0.5
++ path-selection metric igp
+ !
+ interface MgmtEth0/0/CPU0/0
+  description "OOB to MGMT Network"

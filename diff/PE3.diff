@@ -1,7 +1,14 @@
-[edit protocols isis interface ge-0/0/0.3344 level 2]
--     metric 100;
-+     metric 1000;
-[edit protocols isis interface ge-0/0/0.3344]
-      level 2 { ... }
--     level 1 metric 100;
-+     level 1 metric 1000;
+[edit groups]
+   GR-LSP { ... }
++  GR-ISIS {
++      protocols {
++          isis {
++              interface "<*[es]*>" {
++                  link-protection;
++              }
++          }
++      }
++  }
+[edit protocols isis]
++   apply-groups GR-ISIS;
++   backup-spf-options node-link-degradation;
