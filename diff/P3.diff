@@ -1,0 +1,15 @@
+[edit protocols mpls]
++   admin-groups {
++       AG10 10;
++       AG20 20;
++   }
+[edit protocols mpls interface ge-0/0/0.13]
++    admin-group AG10;
+[edit protocols mpls interface ge-0/0/0.23]
++    admin-group AG20;
+[edit protocols mpls interface ge-0/0/0.34]
++    admin-group AG20;
+[edit protocols mpls interface ge-0/0/0.35]
++    admin-group AG10;
+[edit protocols mpls interface ge-0/0/0.36]
++    admin-group AG20;

@@ -1,0 +1,31 @@
+--- 
++++ 
+@@ -172,21 +172,28 @@
+ !
+ mpls traffic-eng
+  interface GigabitEthernet0/0/0/0.14
++  attribute-names AG20
+   admin-weight 10
+  !
+  interface GigabitEthernet0/0/0/0.24
++  attribute-names AG10
+   admin-weight 100
+  !
+  interface GigabitEthernet0/0/0/0.34
++  attribute-names AG20
+   admin-weight 10
+  !
+  interface GigabitEthernet0/0/0/0.45
++  attribute-names AG20
+   admin-weight 10
+  !
+  interface GigabitEthernet0/0/0/0.46
++  attribute-names AG10
+   admin-weight 100
+  !
+  reoptimize 30
++ affinity-map AG10 bit-position 10
++ affinity-map AG20 bit-position 20
+  reoptimize timers delay installation 15
+ !
+ mpls ldp

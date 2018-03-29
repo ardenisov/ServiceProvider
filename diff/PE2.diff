@@ -1,0 +1,11 @@
+--- 
++++ 
+@@ -107,7 +107,7 @@
+   circuit-type level-1
+   point-to-point
+   address-family ipv4 unicast
+-   metric 1000
++   metric 10
+    mpls ldp sync
+   !
+  !

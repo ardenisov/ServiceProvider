@@ -1,0 +1,15 @@
+[edit protocols mpls label-switched-path P1-->P2_PL_C]
++     admin-group {
++         include-any AG10;
++         exclude AG20;
++     }
+[edit protocols mpls label-switched-path P1-->P5_PL_C]
++     admin-group {
++         include-any AG10;
++         exclude AG20;
++     }
+[edit protocols mpls label-switched-path P1-->P6_PL_C]
++     admin-group {
++         include-any AG10;
++         exclude AG20;
++     }

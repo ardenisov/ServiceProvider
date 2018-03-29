@@ -259,8 +259,18 @@ protocols {
 ###    #}
 #
     mpls {
+	admin-groups {
+		AG10 10;
+		AG20 20;
+	}
 {% for intf,intf_attr in node.links.items()|sort %}
-           interface {{ intf }};
+{% if intf_attr.affinity is defined %}
+           interface {{ intf }}{
+		admin-group {{ intf_attr.affinity }};
+	}
+{% else %}
+	interface {{ intf }};
+{% endif %}
 {% endfor %}
 {% if node.rsvp is defined and node.rsvp !=1 %}
    apply-groups GR-LSP;
@@ -275,6 +285,12 @@ protocols {
 {% endfor %}
 {% if rsvp_attr.tldp is defined and rsvp_attr.tldp == 1 %}
 		ldp-tunneling;
+{% endif %}
+{% if rsvp_attr.ag_incl is defined %}
+                admin-group include {{ rsvp_attr.ag_incl }};
+{% endif %}
+{% if rsvp_attr.ag_excl is defined %}
+                admin-group exclude {{ rsvp_attr.ag_excl }};
 {% endif %}
 	   }
 		

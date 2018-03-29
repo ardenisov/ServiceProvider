@@ -95,6 +95,12 @@ interface tunnel-{{ rsvp_attr.tun }}
 {% for route in rsvp_attr.route %}
  autoroute destination {{ route }}
 {% endfor %}
+{% if rsvp_attr.ag_incl is defined%}
+ affinity include {{ rsvp_attr.ag_incl }}
+{% endif%}
+{% if rsvp_attr.ag_excl is defined%}
+ affinity exclude {{ rsvp_attr.ag_excl }}
+{% endif%}
 {% endfor %}
 {% endif %}
 !
@@ -165,9 +171,14 @@ reoptimize timers delay installation 15
 {% if intf_attr.tecost is defined and intf_attr.tecost != 0  %}
  admin-weight {{ intf_attr.tecost }}
 {% endif %}
+{% if intf_attr.affinity is defined %}
+ attribute-names {{ intf_attr.affinity }}
+{% endif %}
 {% else %}
  no interface {{ intf }}
 {% endif %}
+ affinity-map AG10 bit-position 10
+ affinity-map AG20 bit-position 20
 {% endfor %}
 !
 {#
