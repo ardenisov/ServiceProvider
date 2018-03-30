@@ -1,11 +1,12 @@
 --- 
 +++ 
-@@ -107,7 +107,7 @@
-   circuit-type level-1
-   point-to-point
-   address-family ipv4 unicast
--   metric 1000
-+   metric 10
-    mpls ldp sync
-   !
-  !
+@@ -116,6 +116,9 @@
+ mpls oam
+ !
+ mpls traffic-eng
++ auto-tunnel backup
++  tunnel-id min 101 max 199
++ !
+  reoptimize 30
+  affinity-map AG10 bit-position 10
+  affinity-map AG20 bit-position 20

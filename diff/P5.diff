@@ -1,15 +1,9 @@
-[edit protocols mpls label-switched-path P5-->P1_PL_C]
-+     admin-group {
-+         include-any AG10;
-+         exclude AG20;
-+     }
-[edit protocols mpls label-switched-path P5-->P2_PL_C]
-+     admin-group {
-+         include-any AG10;
-+         exclude AG20;
+[edit protocols rsvp interface ge-0/0/0.56]
++     link-protection {
++         admin-group {
++             include-any AG10;
++             exclude AG20;
++         }
 +     }
 [edit protocols mpls label-switched-path P5-->P6_PL_C]
-+     admin-group {
-+         include-any AG10;
-+         exclude AG20;
-+     }
++    link-protection;

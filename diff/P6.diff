@@ -1,10 +1,12 @@
 --- 
 +++ 
-@@ -209,6 +209,7 @@
-   admin-weight 100
+@@ -217,6 +217,9 @@
+    attribute-set PLANE_C
+   !
   !
-  interface GigabitEthernet0/0/0/0.56
-+  attribute-names AG10
-   admin-weight 100
-  !
++ auto-tunnel backup
++  tunnel-id min 101 max 199
++ !
   reoptimize 30
+  affinity-map AG10 bit-position 10
+  affinity-map AG20 bit-position 20

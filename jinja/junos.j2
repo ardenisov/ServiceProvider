@@ -292,6 +292,9 @@ protocols {
 {% if rsvp_attr.ag_excl is defined %}
                 admin-group exclude {{ rsvp_attr.ag_excl }};
 {% endif %}
+{% if rsvp_attr.protection is defined %}
+		link-protection;
+{% endif %}
 	   }
 		
 {% endfor %}
@@ -324,7 +327,18 @@ protocols {
    rsvp {
 {% for intf,intf_attr in node.links.items()|sort %}
 {% if intf_attr.rsvp is defined and intf_attr.rsvp == 1  %}
+{% if intf_attr.protection is defined %}
+           interface {{ intf }} {
+	     link-protection {
+                admin-group {
+                    include-any AG10;
+                    exclude AG20;
+                }
+            }
+	}
+{% else %}
            interface {{ intf }};
+{% endif %}
 {% endif %}
 {% endfor %}
    }
