@@ -1,0 +1,26 @@
+{#
+**************************************************
+##         Groups configuration            ######
+**************************************************
+#}
+group GR-LSP
+ interface 'tunnel-te.*'
+  ipv4 unnumbered Loopback0
+  record-route
+  path-option 1 dynamic
+ !
+end-group
+!
+group GR-ISIS
+ router isis '.*'
+  interface 'GigabitEthernet.*'
+   point-to-point
+   address-family ipv4 unicast
+{% if node.isis.protection is defined %}
+    fast-reroute {{ node.isis.protection }}
+{% endif %}
+   mpls ldp sync
+ !
+end-group
+!
+

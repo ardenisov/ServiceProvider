@@ -81,6 +81,10 @@ route-policy ISIS_LEAK
    endif
 end-policy
 !
+route-policy PL-iBGP-RR-OUT
+   set next-hop self
+end-policy
+!
 {#
 **************************************************
 ##         TE tunnels configuration            ######
@@ -152,6 +156,48 @@ interface Loopback{{ lo_attr.id }}
    metric {{intf_attr.cost}}
 {% endfor %}
 !
+{#
+**************************************************
+##         BGP configuration            ######
+#**************************************************
+##}
+{% if node.bgp is defined %}
+router bgp {{ common.bgp.as }}
+bgp router-id {{ node.rid }}
+{% for family in node.bgp.ibgp.af %}
+{% if family == 'inet' %}
+ address-family ipv4 unicast
+  additional-path receive
+  additional-path send
+!
+{% if node.bgp.ibgp.rr is defined %}
+ neighbor-group iBGP-CLIENTS
+  remote-as {{ common.bgp.as }}
+  update-source Loopback0
+  cluster-id {{ node.rid }}
+  address-family ipv4 unicast
+   route-reflector-client
+!
+{% for peer in node.bgp.ibgp.rr %}
+ neighbor {{ peer }}
+ use neighbor-group iBGP-CLIENTS
+!
+{% endfor %}
+{% endif %}
+ neighbor-group RR
+  remote-as {{ common.bgp.as }}
+  update-source Loopback0
+  address-family ipv4 unicast
+   route-policy PL-iBGP-RR-OUT out
+!
+{% for peer in node.bgp.ibgp.peers %}
+ neighbor {{ peer }}
+ use neighbor-group RR
+!
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
 {#
 **************************************************
 ##         RSVP-TE configuration            ######

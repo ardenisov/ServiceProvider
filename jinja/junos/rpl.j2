@@ -1,0 +1,61 @@
+{#
+**************************************************
+###         Policy configuration        ######
+##**************************************************
+##    #}
+policy-options {
+        policy-statement ISIS_LEAK {
+
+        from {
+            protocol isis;
+            level 2;
+            route-filter 172.16.0.0/22 orlonger;
+        }
+        to {
+            protocol isis;
+            level 1;
+        }
+        then accept;
+    }
+        policy-statement PL-LB {
+           then load-balance per-packet;
+        }
+        policy-statement PL-LDP-EGRESS {
+           term LOOPBACK-B-C {
+            from {
+{% for lo,lo_attr in node.loops.items() %}
+{% if lo == 'PL_A'%}
+{% else %}
+                route-filter {{ lo_attr.ip }}/32 exact;
+{% endif %}
+{% endfor %}
+            }
+            then accept;
+                }
+        term REST {
+            then reject;
+                }
+        }
+        policy-statement PL-LDP-EXPORT {
+           term LOOPBACK-B-C {
+                from {
+                   route-filter 172.16.1.0/24 orlonger;
+                   route-filter 172.16.2.0/24 orlonger;
+                }
+                then accept;
+           }
+           term REST {
+                then reject;
+           }
+        }
+        policy-statement PL-iBGP-RR-OUT {
+                term NHS {
+                        from family inet;
+                        then {
+                                next-hop self;
+                        }
+                }
+
+        }
+}
+

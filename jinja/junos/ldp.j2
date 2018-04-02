@@ -1,0 +1,17 @@
+{#
+**************************************************
+###         LDP configuration        ######
+###**************************************************
+###    #}
+   ldp {
+           export PL-LDP-EXPORT;
+           egress-policy PL-LDP-EGRESS;
+           interface lo0.0;
+           session-protection timeout 600;
+           deaggregate;
+           track-igp-metric;
+{% for intf,intf_attr in node.links.items()|sort %}
+           interface {{ intf }};
+{% endfor %}
+   }
+

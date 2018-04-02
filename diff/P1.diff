@@ -1,7 +1,0 @@
-[edit protocols rsvp interface ge-0/0/0.14]
-+     link-protection {
-+         admin-group {
-+             include-any AG10;
-+             exclude AG20;
-+         }
-+     }

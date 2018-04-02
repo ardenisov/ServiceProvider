@@ -1,0 +1,79 @@
+{#
+**************************************************
+###         BGP        ######
+####**************************************************
+####    #}
+{% if node.bgp is defined %}
+    bgp {
+{% if node.bgp.ibgp.rr is defined %}
+        group iBGP-CLIENTS {
+                type internal;
+                local-address {{ node.rid }};
+                cluster {{ node.rid }};
+{% for family in node.bgp.ibgp.af %}
+{% if family == 'inet' %}
+                family inet {
+                        unicast {
+                                add-path {
+                                        receive;
+                                        send {
+                                                path-count 6;
+                                        }
+                                }
+                        }
+                }
+{% endif %}
+{% endfor %}
+{% for peer in node.bgp.ibgp.rr %}
+                neighbor {{ peer }};
+{% endfor %}
+        }
+        group iBGP-RR {
+                type internal;
+                local-address {{ node.rid }};
+{% for family in node.bgp.ibgp.af %}
+{% if family == 'inet' %}
+                family inet {
+                        unicast {
+                                add-path {
+                                        receive;
+                                        send {
+                                                path-count 6;
+                                        }
+                                }
+                        }
+                }
+{% endif %}
+{% endfor %}
+{% for peer in node.bgp.ibgp.peers %}
+                neighbor {{ peer }};
+{% endfor %}
+        }
+   }
+{% else %}
+	group iBGP-RR {
+                type internal;
+                local-address {{ node.rid }};
+                export PL-iBGP-RR-OUT;
+{% for family in node.bgp.ibgp.af %}
+{% if family == 'inet' %}
+                family inet {
+                        unicast {
+                                add-path {
+                                        receive;
+                                        send {
+                                                path-count 6;
+                                        }
+                                }
+                        }
+                }
+{% endif %}
+{% endfor %}
+{% for peer in node.bgp.ibgp.peers %}
+                neighbor {{ peer }};
+{% endfor %}
+        }
+   }
+{% endif %}
+{% endif %}
+

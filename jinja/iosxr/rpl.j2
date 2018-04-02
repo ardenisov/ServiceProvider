@@ -1,0 +1,16 @@
+{#
+**************************************************
+###         Routing configuration            ######
+**************************************************
+#}
+route-policy ISIS_LEAK
+   if destination in (172.16.0.0/22 eq 32) then
+     pass
+   endif
+end-policy
+!
+route-policy PL-iBGP-RR-OUT
+   set next-hop self
+end-policy
+!
+

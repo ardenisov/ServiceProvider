@@ -1,0 +1,26 @@
+{#
+**************************************************
+###         Groups configuration        ######
+####**************************************************
+####    #}
+groups {
+        GR-LSP {
+                protocols {
+                        mpls {
+                                label-switched-path <*> adaptive;
+                        }
+                }
+        }
+        GR-ISIS {
+                protocols {
+                        isis {
+                                interface "<*[es]*>" {
+{% if node.isis.protection is defined %}
+                                        {{ node.isis.protection }};
+{% endif %}
+                                }
+                        }
+                }
+        }
+}
+

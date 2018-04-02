@@ -1,0 +1,65 @@
+{% set node = nodes[inventory_hostname] %}
+{% include 'groups.j2' %}
+{% include 'rpl.j2' %}
+{% include 'isis.j2' %}
+{% include 'ldp.j2' %}
+{% include 'te.j2' %}
+{% include 'bgp.j2' %}
+!
+{#
+**************************************************
+###         System configuration            ######
+**************************************************
+#}
+hostname {{inventory_hostname}}
+domain name croclab.ru
+ipv4 unnumbered mpls traffic-eng Loopback0
+!
+{#
+**************************************************
+###         Interface configuration            ######
+**************************************************
+#}
+{% for lo,lo_attr in node.loops.items() %}
+interface Loopback{{ lo_attr.id }}
+ ipv4 address {{lo_attr.ip}}/32
+{% endfor %}
+!
+interface MgmtEth0/0/CPU0/0
+ description "OOB to MGMT Network"
+ ipv4 address {{node.mgmt}} 255.255.255.0
+ no shutdown
+!
+{% for intf,intf_attr in node.links.items() %}
+{% if intf_attr.vlan is defined and intf_attr.vlan != 0 %}
+interface {{intf}}
+ description "{{ intf_attr.remote }}"
+ encapsulation dot1q {{intf_attr.vlan}}
+ ipv4 address {{intf_attr.ip}}
+interface {{intf.split('.')[0]}}
+ no shutdown
+{% else %}
+interface {{intf.split('.')[0]}}
+ description "{{ intf_attr.remote }}"
+ ipv4 address {{intf_attr.ip}}
+ no shutdown
+{% endif %}
+{% endfor %}
+!
+router static
+ address-family ipv4 unicast
+  0.0.0.0/0 172.23.84.1
+ !
+!
+mpls oam
+ssh server v2
+ssh server logging
+xml agent ssl
+ iteration off
+!
+xml agent tty
+ iteration off
+!
+netconf agent tty
+!
+end

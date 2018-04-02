@@ -1,15 +1,37 @@
-[edit protocols mpls]
-+   admin-groups {
-+       AG10 10;
-+       AG20 20;
+[edit protocols]
++   bgp {
++       group iBGP-CLIENTS {
++           type internal;
++           local-address 172.16.0.3;
++           family inet {
++               unicast {
++                   add-path {
++                       receive;
++                       send {
++                           path-count 6;
++                       }
++                   }
++               }
++           }
++           cluster 172.16.0.3;
++           neighbor 172.16.0.11;
++           neighbor 172.16.0.22;
++           neighbor 172.16.0.33;
++           neighbor 172.16.0.44;
++       }
++       group iBGP-RR {
++           type internal;
++           local-address 172.16.0.3;
++           family inet {
++               unicast {
++                   add-path {
++                       receive;
++                       send {
++                           path-count 6;
++                       }
++                   }
++               }
++           }
++           neighbor 172.16.0.4;
++       }
 +   }
-[edit protocols mpls interface ge-0/0/0.13]
-+    admin-group AG10;
-[edit protocols mpls interface ge-0/0/0.23]
-+    admin-group AG20;
-[edit protocols mpls interface ge-0/0/0.34]
-+    admin-group AG20;
-[edit protocols mpls interface ge-0/0/0.35]
-+    admin-group AG10;
-[edit protocols mpls interface ge-0/0/0.36]
-+    admin-group AG20;
