@@ -13,4 +13,17 @@ route-policy PL-iBGP-RR-OUT
    set next-hop self
 end-policy
 !
+route-policy PL-eBGP-CE1-IN
+  pass
+end-policy
+!
+route-policy PL-eBGP-CE1-OUT
+  set med 100
+  pass
+end-policy
+!
+route-policy BGP-PIC-EDGE-UNIPATH
+  set path-selection backup 1 install
+end-policy
+!
 

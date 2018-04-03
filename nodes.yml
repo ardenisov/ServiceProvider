@@ -27,6 +27,10 @@ nodes:
                                 af:
                                         - inet
                                         - inet-vpn
+                        protection: multipath
+                        ebgp:
+                                peers:
+                                        CE1: {ip: 10.1.0.2, as: 65001, af: inet}
         P2:
                 mgmt: 172.23.84.202
                 rid:  172.16.0.2
@@ -35,7 +39,7 @@ nodes:
                         PL_B: {id: 1, ip: 172.16.1.2}
                         PL_C: {id: 2, ip: 172.16.2.2}
                 links:
-                        Gi0/0/0/0.12: {ip: 10.0.0.21/31, remote: P1, cost: 10, tecost: 100, vlan: 12, circuit_type: level-1-2, rsvp: 1, affinity: AG10, protection: auto}
+                        Gi0/0/0/0.12: {ip: 10.0.0.21/31, remote: P1, cost: 10, tecost: 20, vlan: 12, circuit_type: level-1-2, rsvp: 1, affinity: AG10, protection: auto}
                         Gi0/0/0/0.23: {ip: 10.0.0.25/31, remote: P3, cost: 10, tecost: 10,  vlan: 23, circuit_type: level-2-only, rsvp: 1, affinity: AG20}
                         Gi0/0/0/0.24: {ip: 10.0.0.17/31, remote: P4, cost: 10, tecost: 100, vlan: 24, circuit_type: level-2-only, rsvp: 1, affinity: AG10}
                         Gi0/0/0/0.222: {ip: 10.0.0.18/31, remote: PE2, cost: 10, vlan: 222, circuit_type: level-1}
@@ -47,6 +51,13 @@ nodes:
                         P1_PL_C: {dst: 172.16.0.1, tun: te21, cost_type: igp, tldp: 1, route: {172.16.2.11}, ag_incl: AG10, ag_excl: AG20, protection: fast-reroute}
                         P5_PL_C: {dst: 172.16.0.5, tun: te25, cost_type: igp, tldp: 1, route: {172.16.2.33, 172.16.2.44}, ag_incl: AG10, ag_excl: AG20}
                         P6_PL_C: {dst: 172.16.0.6, tun: te26, cost_type: igp, tldp: 1, route: {172.16.2.33, 172.16.2.44}, ag_incl: AG10, ag_excl: AG20}
+                bgp:
+                        ibgp:
+                                peers:
+                                        - 172.16.0.3
+                                        - 172.16.0.4
+                                af:
+                                        - inet
 
         P4:
                 mgmt: 172.23.84.203
@@ -70,11 +81,16 @@ nodes:
                                         - 172.16.0.22
                                         - 172.16.0.33
                                         - 172.16.0.44
+                                        - 172.16.0.6
+                                        - 172.16.0.5
+                                        - 172.16.0.2
+                                        - 172.16.0.1
                                 peers:
                                         - 172.16.0.3
                                 af:
                                         - inet
                                         - inet-vpn
+                        protection: backup
         P6:
                 mgmt: 172.23.84.204
                 rid:  172.16.0.6
@@ -85,7 +101,7 @@ nodes:
                 links:
                         Gi0/0/0/0.36: {ip: 10.0.0.29/31, remote: P3, cost: 10, tecost: 10, vlan: 36, circuit_type: level-2-only, rsvp: 1, affinity: AG20}
                         Gi0/0/0/0.46: {ip: 10.0.0.14/31, remote: P4, cost: 10, tecost: 100, vlan: 46, circuit_type: level-2-only, rsvp: 1, affinity: AG10}
-                        Gi0/0/0/0.56: {ip: 10.0.0.33/31, remote: P5, cost: 10, tecost: 100, vlan: 56, circuit_type: level-1-2, rsvp: 1, affinity: AG10, protection: auto}
+                        Gi0/0/0/0.56: {ip: 10.0.0.33/31, remote: P5, cost: 10, tecost: 20, vlan: 56, circuit_type: level-1-2, rsvp: 1, affinity: AG10, protection: auto}
                         Gi0/0/0/0.644: {ip: 10.0.0.13/31, remote: PE4, cost: 10, vlan: 644, circuit_type: level-1}
                 isis: {area0: "0000", area: "0002", net: "0006", level: level-1-2, lolvl: level-1-2, propagate: ISIS_LEAK, protection: per-prefix}
                 rsvp:
@@ -95,6 +111,13 @@ nodes:
                         P1_PL_C: {dst: 172.16.0.1, tun: te21, cost_type: igp, tldp: 1, route: {172.16.2.11, 172.16.2.2}, ag_incl: AG10, ag_excl: AG20}
                         P2_PL_C: {dst: 172.16.0.2, tun: te22, cost_type: igp, tldp: 1, route: {172.16.2.11, 172.16.2.22}, ag_incl: AG10, ag_excl: AG20}
                         P5_PL_C: {dst: 172.16.0.5, tun: te25, cost_type: igp, tldp: 1, route: {172.16.2.33}, ag_incl: AG10, ag_excl: AG20, protection: fast-reroute}
+                bgp:
+                        ibgp:
+                                peers:
+                                        - 172.16.0.3
+                                        - 172.16.0.4
+                                af:
+                                        - inet
         PE4:
                 mgmt: 172.23.84.205
                 rid:  172.16.0.44
@@ -114,6 +137,10 @@ nodes:
                                 af:
                                         - inet
                                         - inet-vpn
+                        protection: multipath
+                        ebgp:
+                                peers:
+                                        CE2: {ip: 10.2.0.2, as: 65002, af: inet}
         PE1:
                 mgmt: 172.23.84.206
                 rid:  172.16.0.11
@@ -133,6 +160,10 @@ nodes:
                                 af:
                                         - inet
                                         - inet-vpn
+                        protection: backup
+                        ebgp:
+                                peers:
+                                        CE1: {ip: 10.1.0.0, as: 65001, af: inet}
         P1:
                 mgmt: 172.23.84.207
                 rid:  172.16.0.1
@@ -142,7 +173,7 @@ nodes:
                         PL_C: {id: 2, ip: 172.16.2.1}
                 links:
                         ge-0/0/0.111: {ip: 10.0.0.3, remote: PE1, cost: 10, vlan: 111, circuit_type: level-1}
-                        ge-0/0/0.12: {ip: 10.0.0.20, remote: P2, cost: 10, tecost: 100, vlan: 12, circuit_type: level-1-2, rsvp: 1, affinity: AG10}
+                        ge-0/0/0.12: {ip: 10.0.0.20, remote: P2, cost: 10, tecost: 20, vlan: 12, circuit_type: level-1-2, rsvp: 1, affinity: AG10}
                         ge-0/0/0.14: {ip: 10.0.0.22, remote: P4, cost: 10, tecost: 10,  vlan: 14, circuit_type: level-2-only, rsvp: 1, affinity: AG20, protection: link-protection}
                         ge-0/0/0.13: {ip: 10.0.0.4, remote: P3, cost: 10, tecost: 100, vlan: 13, circuit_type: level-2-only, rsvp: 1, affinity: AG10}
                 isis: {area0: "0000", area: "0001", net: "0001", level: level-1-2, lolvl: level-1-2, propagate: ISIS_LEAK, protection: node-link-protection}
@@ -153,6 +184,13 @@ nodes:
                         P2_PL_C: {dst: 172.16.0.2, tun: te22, cost_type: igp, tldp: 1, route: {172.16.2.22, 172.16.0.2}, ag_incl: AG10, ag_excl: AG20, protection: link-protection}
                         P5_PL_C: {dst: 172.16.0.5, tun: te25, cost_type: igp, tldp: 1, route: {172.16.2.33, 172.16.2.44, 172.16.0.5}, ag_incl: AG10, ag_excl: AG20}
                         P6_PL_C: {dst: 172.16.0.6, tun: te26, cost_type: igp, tldp: 1, route: {172.16.2.33, 172.16.2.44, 172.16.0.6}, ag_incl: AG10, ag_excl: AG20}
+                bgp:
+                        ibgp:
+                                peers:
+                                        - 172.16.0.3
+                                        - 172.16.0.4
+                                af:
+                                        - inet
         P3:
                 mgmt: 172.23.84.208
                 rid:  172.16.0.3
@@ -175,6 +213,10 @@ nodes:
                                         - 172.16.0.22
                                         - 172.16.0.33
                                         - 172.16.0.44
+                                        - 172.16.0.6
+                                        - 172.16.0.5
+                                        - 172.16.0.2
+                                        - 172.16.0.1
                                 peers:
                                         - 172.16.0.4
                                 af:
@@ -190,7 +232,7 @@ nodes:
                 links:
                         ge-0/0/0.35: {ip: 10.0.0.7, remote: P3, cost: 10, tecost: 100, vlan: 35, circuit_type: level-2-only, rsvp: 1, affinity: AG10}
                         ge-0/0/0.45: {ip: 10.0.0.30, remote: P4, cost: 10, tecost: 10, vlan: 45, circuit_type: level-2-only, rsvp: 1, affinity: AG20}
-                        ge-0/0/0.56: {ip: 10.0.0.32, remote: P6, cost: 10, tecost: 100, vlan: 56, circuit_type: level-1-2, rsvp: 1, affinity: AG10, protection: link-protection}
+                        ge-0/0/0.56: {ip: 10.0.0.32, remote: P6, cost: 10, tecost: 20, vlan: 56, circuit_type: level-1-2, rsvp: 1, affinity: AG10, protection: link-protection}
                         ge-0/0/0.533: {ip: 10.0.0.8, remote: PE3, cost: 10, vlan: 533, circuit_type: level-1}
                 isis: {area0: "0000", area: "0002", net: "0005", level: level-1-2, lolvl: level-1-2, propagate: ISIS_LEAK, protection: node-link-protection}
                 rsvp: 
@@ -200,7 +242,13 @@ nodes:
                         P1_PL_C: {dst: 172.16.0.1, tun: te21, cost_type: igp, tldp: 1, route: {172.16.2.11, 172.16.2.22, 172.16.0.1}, ag_incl: AG10, ag_excl: AG20}
                         P2_PL_C: {dst: 172.16.0.2, tun: te22, cost_type: igp, tldp: 1, route: {172.16.2.11, 172.16.2.22, 172.16.0.2}, ag_incl: AG10, ag_excl: AG20}
                         P6_PL_C: {dst: 172.16.0.6, tun: te26, cost_type: igp, tldp: 1, route: {172.16.2.44, 172.16.0.6}, ag_incl: AG10, ag_excl: AG20, protection: link-protection}
-
+                bgp:
+                        ibgp:
+                                peers:
+                                        - 172.16.0.3
+                                        - 172.16.0.4
+                                af:
+                                        - inet
         PE3:
                 mgmt: 172.23.84.210
                 rid:  172.16.0.33
@@ -220,3 +268,7 @@ nodes:
                                 af:
                                         - inet
                                         - inet-vpn
+                        protection: backup
+                        ebgp:
+                                peers:
+                                        CE2: {ip: 10.2.0.0, af: inet, as: 65002}

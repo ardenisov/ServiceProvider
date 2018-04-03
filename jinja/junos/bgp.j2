@@ -3,7 +3,6 @@
 ###         BGP        ######
 ####**************************************************
 ####    #}
-{% if node.bgp is defined %}
     bgp {
 {% if node.bgp.ibgp.rr is defined %}
         group iBGP-CLIENTS {
@@ -28,33 +27,13 @@
                 neighbor {{ peer }};
 {% endfor %}
         }
+{% endif %}
         group iBGP-RR {
                 type internal;
                 local-address {{ node.rid }};
-{% for family in node.bgp.ibgp.af %}
-{% if family == 'inet' %}
-                family inet {
-                        unicast {
-                                add-path {
-                                        receive;
-                                        send {
-                                                path-count 6;
-                                        }
-                                }
-                        }
-                }
-{% endif %}
-{% endfor %}
-{% for peer in node.bgp.ibgp.peers %}
-                neighbor {{ peer }};
-{% endfor %}
-        }
-   }
-{% else %}
-	group iBGP-RR {
-                type internal;
-                local-address {{ node.rid }};
+{% if node.bgp.ibgp.rr is defined %}
                 export PL-iBGP-RR-OUT;
+{% endif %}
 {% for family in node.bgp.ibgp.af %}
 {% if family == 'inet' %}
                 family inet {
@@ -73,7 +52,30 @@
                 neighbor {{ peer }};
 {% endfor %}
         }
-   }
+{% if node.bgp.ebgp is defined %}
+{% for peer,peer_attr in node.bgp.ebgp.peers.items() %}
+{% set new_as = peer_attr.as %}
+{% if old_as is defined and old_as == new_as %}
+                neighbor {{ peer_attr.ip }} {
+                        export PL-eBGP-CE1-OUT;
+                }
+        }
+{% else %}
+        group eBGP-{{ new_as }} {
+
+{% if peer_attr.af == 'inet' %}
+                family inet {
+                        unicast;
+                }
 {% endif %}
+                peer-as {{ peer_attr.as }};
+                neighbor {{ peer_attr.ip }} {
+                        export PL-eBGP-CE1-OUT;
+                }
+        }
 {% endif %}
+{% set old_as = new_as %}
+{% endfor %}
+{% endif %}
+ }
 

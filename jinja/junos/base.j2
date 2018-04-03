@@ -41,8 +41,11 @@ system {
     }
     syslog {
         user * {
-            any emergency;
+            any none;
         }
+	console {
+	   any none;
+	}
         file messages {
             any any;
             authorization info;
@@ -132,5 +135,10 @@ routing-options {
         router-id {{ node.rid }};
         autonomous-system {{ common.bgp.as }};
         forwarding-table export PL-LB;
+{% if node.bgp.protection is defined and node.bgp.protection == 'multipath' %}
+  	multipath
+{% elif node.bgp.protection is defined and node.bgp.protection == 'backup' %}
+  	protect core
+{% endif %}
 }
 

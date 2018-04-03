@@ -3,7 +3,6 @@
 ##         BGP configuration            ######
 #**************************************************
 ##}
-{% if node.bgp is defined %}
 router bgp {{ common.bgp.as }}
 bgp router-id {{ node.rid }}
 {% for family in node.bgp.ibgp.af %}
@@ -11,6 +10,13 @@ bgp router-id {{ node.rid }}
  address-family ipv4 unicast
   additional-path receive
   additional-path send
+{% if node.bgp.protection is defined and node.bgp.protection == 'multipath' %}
+  maximum-paths ibgp 2
+{% elif node.bgp.protection is defined and node.bgp.protection == 'backup' %}
+  additional-paths selection route-policy BGP-PIC-EDGE-UNIPATH
+{% endif %}
+{% endif %}
+{% endfor %}
 !
 {% if node.bgp.ibgp.rr is defined %}
  neighbor-group iBGP-CLIENTS
@@ -46,6 +52,14 @@ bgp router-id {{ node.rid }}
  use neighbor-group RR
 {% endfor %}
 {% endif %}
+{% if node.bgp.ebgp is defined %}
+{% for peer,peer_attr in node.bgp.ebgp.peers.items() %}
+ neighbor {{ peer_attr.ip }}
+  remote-as {{ peer_attr.as }}
+{% if peer_attr.af is defined and peer_attr.af == 'inet' %}
+  address-family ipv4 unicast
+   route-policy PL-eBGP-CE1-IN in
+   route-policy PL-eBGP-CE1-OUT out
 {% endif %}
 {% endfor %}
 {% endif %}

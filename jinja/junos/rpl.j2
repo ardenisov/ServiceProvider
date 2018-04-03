@@ -57,5 +57,13 @@ policy-options {
                 }
 
         }
+	policy-statement PL-eBGP-CE1-OUT {
+		 term BGP {
+        		then {
+            		metric 100;
+        }
+    }
+}
+
 }
 

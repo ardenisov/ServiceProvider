@@ -1,0 +1,11 @@
+--- 
++++ 
+@@ -249,7 +249,7 @@
+  !
+  interface GigabitEthernet0/0/0/0.56
+   attribute-names AG10
+-  admin-weight 100
++  admin-weight 20
+   auto-tunnel backup
+    attribute-set PLANE_C
+   !
