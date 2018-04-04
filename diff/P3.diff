@@ -1,2 +1,0 @@
-[edit protocols bgp group iBGP-RR]
-+    export PL-iBGP-RR-OUT;

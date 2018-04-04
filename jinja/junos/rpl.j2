@@ -4,6 +4,7 @@
 ##**************************************************
 ##    #}
 policy-options {
+{% if node.isis.propagate is defined %}
         policy-statement ISIS_LEAK {
 
         from {
@@ -17,6 +18,7 @@ policy-options {
         }
         then accept;
     }
+{% endif %}
         policy-statement PL-LB {
            then load-balance per-packet;
         }
@@ -48,6 +50,7 @@ policy-options {
                 then reject;
            }
         }
+{% if node.bgp.ibgp.nexthop is defined %}
         policy-statement PL-iBGP-RR-OUT {
                 term NHS {
                         from family inet;
@@ -55,15 +58,14 @@ policy-options {
                                 next-hop self;
                         }
                 }
-
         }
 	policy-statement PL-eBGP-CE1-OUT {
 		 term BGP {
         		then {
             		metric 100;
-        }
-    }
-}
-
+        		}
+    		}		
+	}
+{% endif %}
 }
 

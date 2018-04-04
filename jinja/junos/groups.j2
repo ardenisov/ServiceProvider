@@ -4,6 +4,7 @@
 ####**************************************************
 ####    #}
 groups {
+{% if node.rsvp is defined and node.rsvp != 1%}
         GR-LSP {
                 protocols {
                         mpls {
@@ -11,16 +12,17 @@ groups {
                         }
                 }
         }
+{% endif %}
+{% if node.isis.protection is defined %}
         GR-ISIS {
                 protocols {
                         isis {
                                 interface "<*[es]*>" {
-{% if node.isis.protection is defined %}
                                         {{ node.isis.protection }};
-{% endif %}
                                 }
                         }
                 }
         }
+{% endif %}
 }
 

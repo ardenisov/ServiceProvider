@@ -13,5 +13,9 @@
 {% for intf,intf_attr in node.links.items()|sort %}
            interface {{ intf }};
 {% endfor %}
+            interface fxp0.0 {
+                disable;
+        }
+
    }
 

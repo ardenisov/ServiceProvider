@@ -132,13 +132,16 @@ interfaces {
 ##**************************************************
 ##    #}
 routing-options {
+	static {
+    	route 0.0.0.0/0 next-hop 172.23.84.1;
+	}
         router-id {{ node.rid }};
         autonomous-system {{ common.bgp.as }};
-        forwarding-table export PL-LB;
-{% if node.bgp.protection is defined and node.bgp.protection == 'multipath' %}
-  	multipath
-{% elif node.bgp.protection is defined and node.bgp.protection == 'backup' %}
-  	protect core
+        forwarding-table {
+		export PL-LB;
+	}
+{% if node.bgp.ibgp.protection is defined and node.bgp.ibgp.protection == 'backup' %}
+	protect core;
 {% endif %}
 }
 

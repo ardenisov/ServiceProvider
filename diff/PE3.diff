@@ -1,4 +1,0 @@
-[edit protocols bgp group eBGP-65002]
-+     family inet {
-+         unicast;
-+     }

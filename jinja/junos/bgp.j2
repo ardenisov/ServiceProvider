@@ -16,7 +16,7 @@
                                 add-path {
                                         receive;
                                         send {
-                                                path-count 6;
+                                                path-count 2;
                                         }
                                 }
                         }
@@ -31,7 +31,7 @@
         group iBGP-RR {
                 type internal;
                 local-address {{ node.rid }};
-{% if node.bgp.ibgp.rr is defined %}
+{% if node.bgp.ibgp.nexthop is defined %}
                 export PL-iBGP-RR-OUT;
 {% endif %}
 {% for family in node.bgp.ibgp.af %}
@@ -41,7 +41,7 @@
                                 add-path {
                                         receive;
                                         send {
-                                                path-count 6;
+                                                path-count 2;
                                         }
                                 }
                         }
@@ -62,7 +62,6 @@
         }
 {% else %}
         group eBGP-{{ new_as }} {
-
 {% if peer_attr.af == 'inet' %}
                 family inet {
                         unicast;
