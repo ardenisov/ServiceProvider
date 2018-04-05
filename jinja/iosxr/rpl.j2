@@ -3,12 +3,15 @@
 ###         Routing configuration            ######
 **************************************************
 #}
+{% if node.isis.propagate is defined %}
 route-policy ISIS_LEAK
    if destination in (172.16.0.0/22 eq 32) then
      pass
    endif
 end-policy
 !
+{% endif %}
+{% if node.bgp.ibgp.nexthop is defined %}
 route-policy PL-iBGP-RR-OUT
    set next-hop self
 end-policy
@@ -22,8 +25,16 @@ route-policy PL-eBGP-CE1-OUT
   pass
 end-policy
 !
+{% endif %}
+{% if node.bgp.ibgp.rr is defined %}
+route-policy BGP-PIC-EDGE-UNIPATH
+  set path-selection backup 1 advertise
+end-policy
+!
+{% elif node.bgp.ibgp.protection is defined  and node.bgp.ibgp.protection == 'backup' %}
 route-policy BGP-PIC-EDGE-UNIPATH
   set path-selection backup 1 install
 end-policy
 !
+{% endif %}
 

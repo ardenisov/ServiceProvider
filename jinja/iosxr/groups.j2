@@ -3,6 +3,7 @@
 ##         Groups configuration            ######
 **************************************************
 #}
+{% if node.rsvp is defined and node.rsvp != 1%}
 group GR-LSP
  interface 'tunnel-te.*'
   ipv4 unnumbered Loopback0
@@ -11,6 +12,7 @@ group GR-LSP
  !
 end-group
 !
+{% endif %}
 group GR-ISIS
  router isis '.*'
   interface 'GigabitEthernet.*'

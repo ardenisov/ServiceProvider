@@ -28,7 +28,6 @@ nodes:
                                         - inet
                                         - inet-vpn
                                 nexthop: 1
-                        protection: multipath
                         ebgp:
                                 peers:
                                         CE1: {ip: 10.1.0.2, as: 65001, af: inet}
@@ -58,7 +57,7 @@ nodes:
                                         - 172.16.0.4
                                 af:
                                         - inet
-
+                                protection: backup
         P4:
                 mgmt: 172.23.84.203
                 rid:  172.16.0.4
@@ -117,6 +116,7 @@ nodes:
                                         - 172.16.0.4
                                 af:
                                         - inet
+                                protection: backup
         PE4:
                 mgmt: 172.23.84.205
                 rid:  172.16.0.44
@@ -137,7 +137,6 @@ nodes:
                                         - inet
                                         - inet-vpn
                                 nexthop: 1
-                                protection: multipath
                         ebgp:
                                 peers:
                                         CE2: {ip: 10.2.0.2, as: 65002, af: inet}

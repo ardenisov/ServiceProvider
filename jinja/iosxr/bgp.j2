@@ -10,9 +10,7 @@ bgp router-id {{ node.rid }}
  address-family ipv4 unicast
   additional-path receive
   additional-path send
-{% if node.bgp.protection is defined and node.bgp.protection == 'multipath' %}
-  maximum-paths ibgp 2
-{% elif node.bgp.protection is defined and node.bgp.protection == 'backup' %}
+{% if node.bgp.ibgp.protection is defined or node.bgp.ibgp.rr is defined %}
   additional-paths selection route-policy BGP-PIC-EDGE-UNIPATH
 {% endif %}
 {% endif %}
@@ -46,7 +44,9 @@ bgp router-id {{ node.rid }}
   remote-as {{ common.bgp.as }}
   update-source Loopback0
   address-family ipv4 unicast
+{% if node.bgp.ibgp.nexthop is defined %}
    route-policy PL-iBGP-RR-OUT out
+{% endif %}
 {% for peer in node.bgp.ibgp.peers %}
  neighbor {{ peer }}
  use neighbor-group RR

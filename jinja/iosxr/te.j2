@@ -25,6 +25,7 @@ interface tunnel-{{ rsvp_attr.tun }}
 {% endfor %}
 {% endif %}
 !
+{% if node.rsvp is defined%}
 rsvp
 {% for intf,intf_attr in node.links.items()|sort %}
 {% if intf_attr.rsvp is defined and intf_attr.rsvp == 1  %}
@@ -66,4 +67,5 @@ reoptimize timers delay installation 15
   tunnel-id min 101 max 199
   exit
 !
+{% endif %}
 
