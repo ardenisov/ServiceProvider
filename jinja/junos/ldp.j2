@@ -2,16 +2,20 @@
 **************************************************
 ###         LDP configuration        ######
 ###**************************************************
-###    #}
+#}
    ldp {
-           export PL-LDP-EXPORT;
-           egress-policy PL-LDP-EGRESS;
+#           export PL-LDP-EXPORT;
+#           egress-policy PL-LDP-EGRESS;
            interface lo0.0;
            session-protection timeout 600;
            deaggregate;
            track-igp-metric;
+	   p2mp;
 {% for intf,intf_attr in node.links.items()|sort %}
+{% if intf_attr.ce is defined %}
+{% else %}
            interface {{ intf }};
+{% endif %}
 {% endfor %}
             interface fxp0.0 {
                 disable;

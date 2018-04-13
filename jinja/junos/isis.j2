@@ -17,8 +17,9 @@
 	level 2 wide-metrics-only;
 {% endif %}
 {%          for intf,intf_attr in node.links.items()|sort %}
+{% if intf_attr.ce is defined %}
+{% else %}
         interface {{ intf }} {
-                point-to-point;
 {%              if intf_attr.cost is defined %}
                 level 2 metric {{ intf_attr.cost }};
                 level 1 metric {{ intf_attr.cost }};
@@ -31,8 +32,8 @@
 {%              elif intf_attr.circuit_type is defined and intf_attr.circuit_type == "level-1" %}
                 level 2 disable;
 {%              endif %}
-                ldp-synchronization;
         }
+{% endif %}
 {% endfor %}
             interface fxp0.0 {
                 disable;

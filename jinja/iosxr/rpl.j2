@@ -9,8 +9,9 @@ route-policy ISIS_LEAK
      pass
    endif
 end-policy
-!
 {% endif %}
+!
+{% if node.bgp is defined %}
 {% if node.bgp.ibgp.nexthop is defined %}
 route-policy PL-iBGP-RR-OUT
    set next-hop self
@@ -24,8 +25,8 @@ route-policy PL-eBGP-CE1-OUT
   set med 100
   pass
 end-policy
-!
 {% endif %}
+!
 {% if node.bgp.ibgp.rr is defined %}
 route-policy BGP-PIC-EDGE-UNIPATH
   set path-selection backup 1 advertise
@@ -36,5 +37,6 @@ route-policy BGP-PIC-EDGE-UNIPATH
   set path-selection backup 1 install
 end-policy
 !
+{% endif %}
 {% endif %}
 

@@ -18,6 +18,8 @@ groups {
                 protocols {
                         isis {
                                 interface "<*[es]*>" {
+					ldp-synchronization;
+            				point-to-point;
                                         {{ node.isis.protection }};
                                 }
                         }

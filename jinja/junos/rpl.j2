@@ -22,7 +22,7 @@ policy-options {
         policy-statement PL-LB {
            then load-balance per-packet;
         }
-        policy-statement PL-LDP-EGRESS {
+{#        policy-statement PL-LDP-EGRESS {
            term LOOPBACK-B-C {
             from {
 {% for lo,lo_attr in node.loops.items() %}
@@ -50,6 +50,8 @@ policy-options {
                 then reject;
            }
         }
+#}
+{% if node.bgp is defined %}
 {% if node.bgp.ibgp.nexthop is defined %}
         policy-statement PL-iBGP-RR-OUT {
                 term NHS {
@@ -66,6 +68,7 @@ policy-options {
         		}
     		}		
 	}
+{% endif %}
 {% endif %}
 }
 

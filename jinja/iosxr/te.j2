@@ -3,6 +3,8 @@
 ##         TE tunnels configuration            ######
 **************************************************
 #}
+ipv4 unnumbered mpls traffic-eng Loopback0
+!
 {% if node.rsvp is defined and node.rsvp !=1 %}
 {% for rsvp_dst,rsvp_attr in node.rsvp.items()|sort %}
 interface tunnel-{{ rsvp_attr.tun }}

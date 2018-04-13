@@ -2,7 +2,7 @@
 **************************************************
 ###         BGP        ######
 ####**************************************************
-####    #}
+#}
     bgp {
 {% if node.bgp.ibgp.rr is defined %}
         group iBGP-CLIENTS {
@@ -21,6 +21,10 @@
                                 }
                         }
                 }
+{% elif family == 'inet-vpn' %}
+		family inet-vpn {
+			unicast;
+		}
 {% endif %}
 {% endfor %}
 {% for peer in node.bgp.ibgp.rr %}
@@ -45,6 +49,10 @@
                                         }
                                 }
                         }
+                }
+{% elif family == 'inet-vpn' %}
+                family inet-vpn {
+                        unicast;
                 }
 {% endif %}
 {% endfor %}

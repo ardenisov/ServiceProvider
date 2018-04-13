@@ -5,6 +5,24 @@ P3  ansible_host=172.23.84.208
 P5  ansible_host=172.23.84.209
 PE3 ansible_host=172.23.84.210
 
+[PE]
+PE1
+PE2
+PE3
+PE4
+
+[LSR]
+P1
+P2
+P3
+P4
+P5
+P6
+
+[RR]
+P3
+P4
+
 [iosxr]
 PE2 ansible_host=172.23.84.201
 P2  ansible_host=172.23.84.202

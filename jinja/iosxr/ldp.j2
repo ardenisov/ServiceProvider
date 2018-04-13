@@ -9,15 +9,18 @@ ipv4 access-list AL-LOCAL-PLANE-B-C
 30 deny ipv4 any any
 !
 mpls ldp
+ mldp
  session protection
   address-family ipv4
-    label
-       local
-          allocate for AL-LOCAL-PLANE-B-C
+!
 {% for intf, intf_attr in node.links.items()|sort %}
+{% if intf_attr.ce is defined %}
+{% else %}
  interface {{ intf }}
   address-family ipv4
+{% endif %}
 {% endfor %}
+!
 {% if node.rsvp is defined and node.rsvp !=1 %}
 {% for rsvp_dst,rsvp_attr in node.rsvp.items()|sort %}
 {% if rsvp_attr.tldp is defined and rsvp_attr.tldp == 1 %}

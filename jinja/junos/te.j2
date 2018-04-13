@@ -9,12 +9,15 @@
                 AG20 20;
         }
 {% for intf,intf_attr in node.links.items()|sort %}
+{% if intf_attr.ce is defined %}
+{% else %}
 {% if intf_attr.affinity is defined %}
         interface {{ intf }}{
                 admin-group {{ intf_attr.affinity }};
         }
 {% else %}
         interface {{ intf }};
+{% endif %}
 {% endif %}
 {% endfor %}
 {% if node.rsvp is defined and node.rsvp !=1 %}

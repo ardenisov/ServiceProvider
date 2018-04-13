@@ -13,6 +13,8 @@ bgp router-id {{ node.rid }}
 {% if node.bgp.ibgp.protection is defined or node.bgp.ibgp.rr is defined %}
   additional-paths selection route-policy BGP-PIC-EDGE-UNIPATH
 {% endif %}
+{% elif family == 'inet-vpn' %}
+address-family vpnv4 unicast
 {% endif %}
 {% endfor %}
 !
@@ -21,8 +23,15 @@ bgp router-id {{ node.rid }}
   remote-as {{ common.bgp.as }}
   update-source Loopback0
   cluster-id {{ node.rid }}
+{% for family in node.bgp.ibgp.af %}
+{% if family == 'inet' %}
   address-family ipv4 unicast
    route-reflector-client
+{% elif family == 'inet-vpn' %}
+ address-family vpnv4 unicast
+   route-reflector-client
+{% endif %}
+{% endfor %}
 !
 {% for peer in node.bgp.ibgp.rr %}
  neighbor {{ peer }}
@@ -32,7 +41,13 @@ bgp router-id {{ node.rid }}
  neighbor-group RR
   remote-as {{ common.bgp.as }}
   update-source Loopback0
+{% for family in node.bgp.ibgp.af %}
+{% if family == 'inet' %}
   address-family ipv4 unicast
+{% elif family == 'inet-vpn' %}
+ address-family vpnv4 unicast
+{% endif %}
+{% endfor %}
 !
 {% for peer in node.bgp.ibgp.peers %}
  neighbor {{ peer }}
@@ -43,10 +58,16 @@ bgp router-id {{ node.rid }}
  neighbor-group RR
   remote-as {{ common.bgp.as }}
   update-source Loopback0
+{% for family in node.bgp.ibgp.af %}
+{% if family == 'inet' %}
   address-family ipv4 unicast
 {% if node.bgp.ibgp.nexthop is defined %}
    route-policy PL-iBGP-RR-OUT out
 {% endif %}
+{% elif family == 'inet-vpn' %}
+ address-family vpnv4 unicast
+{% endif %}
+{% endfor %}
 {% for peer in node.bgp.ibgp.peers %}
  neighbor {{ peer }}
  use neighbor-group RR
@@ -63,4 +84,5 @@ bgp router-id {{ node.rid }}
 {% endif %}
 {% endfor %}
 {% endif %}
-!
+
+

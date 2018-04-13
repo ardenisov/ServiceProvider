@@ -1,17 +1,26 @@
 {% set node = nodes[inventory_hostname] %}
 {% include 'groups.j2' %}
 {% include 'rpl.j2' %}
+{% include 'ifs.j2' %}
+{% include 'routing.j2' %}
 protocols {
 {% include 'isis.j2' %}
 {% include 'ldp.j2' %}
+{#
 {% include 'te.j2' %}
+#}
+{% if node.bgp is defined %}
 {% include 'bgp.j2' %}
+{% endif %}
+{% if node.role is defined and node.role == 'PE' %}
+{% include 'mc.j2' %}
+{% endif %}
 }
 {#
 **************************************************
 ###         System configuration            ######
 **************************************************
-    #}
+#}
 system {
     host-name {{inventory_hostname}};
     no-redirects;
@@ -55,93 +64,7 @@ system {
         }
     }
 }
-{#
-**************************************************
-###         Interfaces configuration        ######
-#**************************************************
-#    #}
-interfaces {
-    fxp0 {
-        description "OOB to MGMT Network";
-        unit 0 {
-            family inet {
-                address {{node.mgmt}}/24;
-            }
-        }
-    }
-    lo0 {
-        unit 0 {
-            family inet {
-{% for lo,lo_attr in node.loops.items() %}
-                address {{lo_attr.ip}}/32;
-{% endfor %}
-            }
-            family iso {
-{% if node.isis.area is defined %}
-                address 49.{{ node.isis.area }}.0000.0000.{{ node.isis.net }}.00;
-{% endif %}
-{% if node.isis.area0 is defined %}
-                address 49.{{ node.isis.area0 }}.0000.0000.{{ node.isis.net }}.00;
-{% endif %}
-            }
-        }
-{% for intf,intf_attr in node.links.items()|sort %}
-{% set newintf = intf.split('.')[0] %}
-{% if oldintf is defined and oldintf == newintf%}
-        unit {{ intf_attr.vlan }} {
-            description "{{ intf_attr.remote }}"
-            vlan-id {{ intf_attr.vlan }};
-            family inet {
-                address {{ intf_attr.ip }}/{{ intf_attr.mask|default('31') }};
-            }
-            family mpls;
-            family iso;
-        }
-{% else %}
-    }
-    {{ newintf }} {
-{% if intf_attr.vlan is defined and intf_attr.vlan !=0 %}
-        vlan-tagging;
-        unit {{ intf_attr.vlan }} {
-           description "{{ intf_attr.remote }}"
-            vlan-id {{ intf_attr.vlan }};
-            family inet {
-                address {{ intf_attr.ip }}/{{ intf_attr.mask|default('31') }};
-            }
-            family mpls;
-            family iso;
-        }
-{% else %}
-        unit 0 {
-           description "{{ intf_attr.remote }}"
-            family inet {
-                address {{ intf_attr.ip }}/{{ intf_attr.mask|default('31') }};
-            }
-            family mpls;
-            family iso:
-        }
-{% endif %}
-{% set oldintf = newintf%}
-{% endif %}
-{% endfor %}
-    }
-}
-{#
-**************************************************
-###         Routing Options        ######
-##**************************************************
-##    #}
-routing-options {
-	static {
-    	route 0.0.0.0/0 next-hop 172.23.84.1;
-	}
-        router-id {{ node.rid }};
-        autonomous-system {{ common.bgp.as }};
-        forwarding-table {
-		export PL-LB;
-	}
-{% if node.bgp.ibgp.protection is defined and node.bgp.ibgp.protection == 'backup' %}
-	protect core;
-{% endif %}
+chassis {
+    network-services ip;
 }
 

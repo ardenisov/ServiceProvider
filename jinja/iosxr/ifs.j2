@@ -1,0 +1,24 @@
+{#
+**************************************************
+###         Interface configuration            ######
+**************************************************
+#}
+{% for lo,lo_attr in node.loops.items() %}
+interface Loopback{{ lo_attr.id }}
+ ipv4 address {{lo_attr.ip}}/32
+{% endfor %}
+!
+interface MgmtEth0/0/CPU0/0
+ description "OOB to MGMT Network"
+ ipv4 address {{node.mgmt}} 255.255.255.0
+ no shutdown
+!
+{% for intf,intf_attr in node.links.items() %}
+interface {{intf}}
+ description "{{ intf_attr.remote }}"
+ encapsulation dot1q {{intf_attr.vlan}}
+ ipv4 address {{intf_attr.ip}}/{{ intf_attr.mask|default('31') }}
+interface {{intf.split('.')[0]}}
+ no shutdown
+{% endfor %}
+

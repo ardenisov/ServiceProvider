@@ -34,12 +34,15 @@ interface Loopback{{ lo_attr.id }}
 {% endif %}
 {% endfor %}
 {% for intf,intf_attr in node.links.items()|sort %}
+{% if intf_attr.ce is defined %}
+{% else %}
  interface {{intf}}
 {% if intf_attr.circuit_type is defined %}
    circuit-type {{intf_attr.circuit_type}}
 {% endif %}
   address-family ipv4 unicast
    metric {{intf_attr.cost}}
+{% endif %}
 {% endfor %}
 !
 

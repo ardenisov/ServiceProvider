@@ -1,0 +1,21 @@
+{#
+**************************************************
+###         Multicast configuration        ######
+###**************************************************
+#}
+	igmp {
+{% for intf,intf_attr in node.links.items()|sort %}
+{% if intf_attr.igmp is defined %}
+           	interface {{ intf }} version 3;
+{% endif %}
+{% endfor %}
+	}
+	pim {
+	   mldp-inband-signalling;
+{% for intf,intf_attr in node.links.items()|sort %}
+{% if intf_attr.pim is defined %}
+           interface {{ intf }};
+{% endif %}
+{% endfor %}
+	}
+

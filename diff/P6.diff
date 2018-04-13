@@ -1,0 +1,11 @@
+-  interface MgmtEth0/0/CPU0/0
+-   shutdown
+-  !
+-  interface GigabitEthernet0/0/0/0
+-   shutdown
+-  !
++  mpls ldp
++   mldp
++   !
+-   interface tunnel-te1
+-   interface tunnel-te2
