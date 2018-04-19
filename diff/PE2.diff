@@ -7,9 +7,14 @@
 -  interface GigabitEthernet0/0/0/1
 -   shutdown
 -  !
+<<<<<<< HEAD
 +  router bgp 65000
 +   vrf PLANE_B
 +    address-family ipv4 unicast
 +     additional-paths selection route-policy BGP-PIC-EDGE-UNIPATH
 +    !
+=======
++  mpls ldp
++   mldp
+>>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
 +   !

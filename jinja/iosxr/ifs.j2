@@ -15,13 +15,18 @@ interface MgmtEth0/0/CPU0/0
 !
 {% for intf,intf_attr in node.links.items() %}
 interface {{intf}}
+<<<<<<< HEAD
  description {{ intf_attr.remote }}
+=======
+ description "{{ intf_attr.remote }}"
+>>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
  encapsulation dot1q {{intf_attr.vlan}}
  ipv4 address {{intf_attr.ip}}/{{ intf_attr.mask|default('31') }}
 interface {{intf.split('.')[0]}}
  no shutdown
 {% endfor %}
 
+<<<<<<< HEAD
 {% if node.vrf is defined %}
 {% for vrf,vrf_attr in node.vrf.items() %}
 {% for intf,intf_attr in vrf_attr.links.items() %}
@@ -36,3 +41,5 @@ interface {{intf.split('.')[0]}}
 {% endfor %}
 {% endif %}
 
+=======
+>>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4

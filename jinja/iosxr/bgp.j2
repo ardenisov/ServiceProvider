@@ -14,7 +14,11 @@ bgp router-id {{ node.rid }}
   additional-paths selection route-policy BGP-PIC-EDGE-UNIPATH
 {% endif %}
 {% elif family == 'inet-vpn' %}
+<<<<<<< HEAD
  address-family vpnv4 unicast
+=======
+address-family vpnv4 unicast
+>>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
 {% endif %}
 {% endfor %}
 !
@@ -28,7 +32,11 @@ bgp router-id {{ node.rid }}
   address-family ipv4 unicast
    route-reflector-client
 {% elif family == 'inet-vpn' %}
+<<<<<<< HEAD
   address-family vpnv4 unicast
+=======
+ address-family vpnv4 unicast
+>>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
    route-reflector-client
 {% endif %}
 {% endfor %}
@@ -45,7 +53,11 @@ bgp router-id {{ node.rid }}
 {% if family == 'inet' %}
   address-family ipv4 unicast
 {% elif family == 'inet-vpn' %}
+<<<<<<< HEAD
   address-family vpnv4 unicast
+=======
+ address-family vpnv4 unicast
+>>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
 {% endif %}
 {% endfor %}
 !
@@ -66,7 +78,10 @@ bgp router-id {{ node.rid }}
 {% endif %}
 {% elif family == 'inet-vpn' %}
  address-family vpnv4 unicast
+<<<<<<< HEAD
   route-policy PL-VPNV4-EXP out
+=======
+>>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
 {% endif %}
 {% endfor %}
 {% for peer in node.bgp.ibgp.peers %}
@@ -86,6 +101,7 @@ bgp router-id {{ node.rid }}
 {% endfor %}
 {% endif %}
 
+<<<<<<< HEAD
 {% if node.vrf is defined %}
 {% for vrf,vrf_attr in node.vrf.items() %}
  vrf {{ vrf }}
@@ -113,3 +129,6 @@ bgp router-id {{ node.rid }}
  !
 {% endfor %}
 {% endif %}
+=======
+
+>>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4

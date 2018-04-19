@@ -22,11 +22,22 @@ policy-options {
         policy-statement PL-LB {
            then load-balance per-packet;
         }
+<<<<<<< HEAD
         policy-statement PL-LDP-EGRESS {
            term LOOPBACK-B-C {
             from {
 {% for lo,lo_attr in node.loops.items() %}
                 route-filter {{ lo_attr.ip }}/32 exact;
+=======
+{#        policy-statement PL-LDP-EGRESS {
+           term LOOPBACK-B-C {
+            from {
+{% for lo,lo_attr in node.loops.items() %}
+{% if lo == 'PL_A'%}
+{% else %}
+                route-filter {{ lo_attr.ip }}/32 exact;
+{% endif %}
+>>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
 {% endfor %}
             }
             then accept;
@@ -38,7 +49,10 @@ policy-options {
         policy-statement PL-LDP-EXPORT {
            term LOOPBACK-B-C {
                 from {
+<<<<<<< HEAD
 		   route-filter 172.16.0.0/24 orlonger;
+=======
+>>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
                    route-filter 172.16.1.0/24 orlonger;
                    route-filter 172.16.2.0/24 orlonger;
                 }
@@ -48,6 +62,10 @@ policy-options {
                 then reject;
            }
         }
+<<<<<<< HEAD
+=======
+#}
+>>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
 {% if node.bgp is defined %}
 {% if node.bgp.ibgp.nexthop is defined %}
         policy-statement PL-iBGP-RR-OUT {
@@ -67,6 +85,7 @@ policy-options {
 	}
 {% endif %}
 {% endif %}
+<<<<<<< HEAD
 
 {% if node.vrf is defined %}
 {% for vrf,vrf_attr in node.vrf.items() %}
@@ -121,5 +140,7 @@ policy-options {
 {% endfor %}
 {% endfor %}
 {% endif %}
+=======
+>>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
 }
 

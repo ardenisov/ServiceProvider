@@ -2,4 +2,12 @@
 -   shutdown
 -  !
 -  interface GigabitEthernet0/0/0/0
+<<<<<<< HEAD
 -   shutdown
+=======
+-   shutdown
+-  !
++  mpls ldp
++   mldp
++   !
+>>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
