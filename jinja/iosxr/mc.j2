@@ -1,0 +1,14 @@
+{#
+**************************************************
+###         Multicast configuration        ######
+###**************************************************
+#}
+multicast-routing
+ address-family ipv4
+{% for intf,intf_attr in node.links.items()|sort %}
+{% if intf_attr.igmp is defined %}
+  interface {{ intf }}
+  enable
+{% endif %}
+{% endfor %}
+

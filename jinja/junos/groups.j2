@@ -1,0 +1,30 @@
+{#
+**************************************************
+###         Groups configuration        ######
+####**************************************************
+####    #}
+groups {
+{% if node.rsvp is defined and node.rsvp != 1%}
+        GR-LSP {
+                protocols {
+                        mpls {
+                                label-switched-path <*> adaptive;
+                        }
+                }
+        }
+{% endif %}
+{% if node.isis.protection is defined %}
+        GR-ISIS {
+                protocols {
+                        isis {
+                                interface "<*[es]*>" {
+					ldp-synchronization;
+            				point-to-point;
+                                        {{ node.isis.protection }};
+                                }
+                        }
+                }
+        }
+{% endif %}
+}
+

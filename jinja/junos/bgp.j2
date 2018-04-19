@@ -1,0 +1,88 @@
+{#
+**************************************************
+###         BGP        ######
+####**************************************************
+#}
+    bgp {
+{% if node.bgp.ibgp.rr is defined %}
+        group iBGP-CLIENTS {
+                type internal;
+                local-address {{ node.rid }};
+                cluster {{ node.rid }};
+{% for family in node.bgp.ibgp.af %}
+{% if family == 'inet' %}
+                family inet {
+                        unicast {
+                                add-path {
+                                        receive;
+                                        send {
+                                                path-count 2;
+                                        }
+                                }
+                        }
+                }
+{% elif family == 'inet-vpn' %}
+		family inet-vpn {
+			unicast;
+		}
+{% endif %}
+{% endfor %}
+{% for peer in node.bgp.ibgp.rr %}
+                neighbor {{ peer }};
+{% endfor %}
+        }
+{% endif %}
+        group iBGP-RR {
+                type internal;
+                local-address {{ node.rid }};
+{% if node.bgp.ibgp.nexthop is defined %}
+                export PL-iBGP-RR-OUT;
+{% endif %}
+{% for family in node.bgp.ibgp.af %}
+{% if family == 'inet' %}
+                family inet {
+                        unicast {
+                                add-path {
+                                        receive;
+                                        send {
+                                                path-count 2;
+                                        }
+                                }
+                        }
+                }
+{% elif family == 'inet-vpn' %}
+                family inet-vpn {
+                        unicast;
+                }
+{% endif %}
+{% endfor %}
+{% for peer in node.bgp.ibgp.peers %}
+                neighbor {{ peer }};
+{% endfor %}
+        }
+{% if node.bgp.ebgp is defined %}
+{% for peer,peer_attr in node.bgp.ebgp.peers.items() %}
+{% set new_as = peer_attr.as %}
+{% if old_as is defined and old_as == new_as %}
+                neighbor {{ peer_attr.ip }} {
+                        export PL-eBGP-CE1-OUT;
+                }
+        }
+{% else %}
+        group eBGP-{{ new_as }} {
+{% if peer_attr.af == 'inet' %}
+                family inet {
+                        unicast;
+                }
+{% endif %}
+                peer-as {{ peer_attr.as }};
+                neighbor {{ peer_attr.ip }} {
+                        export PL-eBGP-CE1-OUT;
+                }
+        }
+{% endif %}
+{% set old_as = new_as %}
+{% endfor %}
+{% endif %}
+ }
+

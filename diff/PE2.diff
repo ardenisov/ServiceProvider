@@ -1,0 +1,15 @@
+-  interface MgmtEth0/0/CPU0/0
+-   shutdown
+-  !
+-  interface GigabitEthernet0/0/0/0
+-   shutdown
+-  !
+-  interface GigabitEthernet0/0/0/1
+-   shutdown
+-  !
++  router bgp 65000
++   vrf PLANE_B
++    address-family ipv4 unicast
++     additional-paths selection route-policy BGP-PIC-EDGE-UNIPATH
++    !
++   !

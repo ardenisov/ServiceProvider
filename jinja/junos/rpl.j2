@@ -1,0 +1,125 @@
+{#
+**************************************************
+###         Policy configuration        ######
+##**************************************************
+##    #}
+policy-options {
+{% if node.isis.propagate is defined %}
+        policy-statement ISIS_LEAK {
+
+        from {
+            protocol isis;
+            level 2;
+            route-filter 172.16.0.0/22 orlonger;
+        }
+        to {
+            protocol isis;
+            level 1;
+        }
+        then accept;
+    }
+{% endif %}
+        policy-statement PL-LB {
+           then load-balance per-packet;
+        }
+        policy-statement PL-LDP-EGRESS {
+           term LOOPBACK-B-C {
+            from {
+{% for lo,lo_attr in node.loops.items() %}
+                route-filter {{ lo_attr.ip }}/32 exact;
+{% endfor %}
+            }
+            then accept;
+                }
+        term REST {
+            then reject;
+                }
+        }
+        policy-statement PL-LDP-EXPORT {
+           term LOOPBACK-B-C {
+                from {
+		   route-filter 172.16.0.0/24 orlonger;
+                   route-filter 172.16.1.0/24 orlonger;
+                   route-filter 172.16.2.0/24 orlonger;
+                }
+                then accept;
+           }
+           term REST {
+                then reject;
+           }
+        }
+{% if node.bgp is defined %}
+{% if node.bgp.ibgp.nexthop is defined %}
+        policy-statement PL-iBGP-RR-OUT {
+                term NHS {
+                        from family inet;
+                        then {
+                                next-hop self;
+                        }
+                }
+        }
+	policy-statement PL-eBGP-CE1-OUT {
+		 term BGP {
+        		then {
+            		metric 100;
+        		}
+    		}		
+	}
+{% endif %}
+{% endif %}
+
+{% if node.vrf is defined %}
+{% for vrf,vrf_attr in node.vrf.items() %}
+{% for peer,peer_attr in vrf_attr.bgp.peers.items() %}
+    policy-statement PL-{{ vrf }}-EXP {
+        term eBGP {
+            from protocol bgp;
+            then {
+                community add RT-{{ vrf }};
+                next-hop {{ vrf_attr.bgp.nh }};
+                accept;
+            }
+        }
+        term CONN {
+            from protocol direct;
+            then {
+                community add RT-{{ vrf }};
+                next-hop {{ vrf_attr.bgp.nh }};
+                accept;
+            }
+        }
+    }
+    policy-statement PL-{{ vrf }}-IMP {
+        term PLANE_B {
+            from community RT-{{ vrf }};
+            then accept;
+        }
+    }
+    policy-statement PL-{{ vrf }}-eBGP-{{ peer }}-IN {
+        term SOO {
+            then {
+                community add SOO-{{ vrf }}_SITE1;
+            }
+        }
+    }
+    policy-statement PL-{{ vrf }}-eBGP-{{ peer }}-OUT {
+        term SOO {
+            from community SOO-{{ vrf }}_SITE1;
+            then reject;
+        }
+        term BGP {
+            from protocol bgp;
+            then {
+                metric 100;
+                community delete RT-ALL;
+            }
+        }
+    }
+    community RT-ALL members target:*:*;
+    community RT-{{ vrf }} members target:{{ vrf_attr.rt_out }};
+    community SOO-PLANE_B_SITE1 members origin:{{ peer_attr.soo }};
+{% endfor %}
+{% endfor %}
+{% endif %}
+}
+

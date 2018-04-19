@@ -1,0 +1,6 @@
+[edit]
+- version 17.2R1.13;
+[edit routing-instances PLANE_B]
++    routing-options {
++        protect core;
++    }

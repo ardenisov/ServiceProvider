@@ -1,0 +1,115 @@
+{#
+**************************************************
+##         BGP configuration            ######
+#**************************************************
+##}
+router bgp {{ common.bgp.as }}
+bgp router-id {{ node.rid }}
+{% for family in node.bgp.ibgp.af %}
+{% if family == 'inet' %}
+ address-family ipv4 unicast
+  additional-path receive
+  additional-path send
+{% if node.bgp.ibgp.protection is defined or node.bgp.ibgp.rr is defined %}
+  additional-paths selection route-policy BGP-PIC-EDGE-UNIPATH
+{% endif %}
+{% elif family == 'inet-vpn' %}
+ address-family vpnv4 unicast
+{% endif %}
+{% endfor %}
+!
+{% if node.bgp.ibgp.rr is defined %}
+ neighbor-group iBGP-CLIENTS
+  remote-as {{ common.bgp.as }}
+  update-source Loopback0
+  cluster-id {{ node.rid }}
+{% for family in node.bgp.ibgp.af %}
+{% if family == 'inet' %}
+  address-family ipv4 unicast
+   route-reflector-client
+{% elif family == 'inet-vpn' %}
+  address-family vpnv4 unicast
+   route-reflector-client
+{% endif %}
+{% endfor %}
+!
+{% for peer in node.bgp.ibgp.rr %}
+ neighbor {{ peer }}
+ use neighbor-group iBGP-CLIENTS
+!
+{% endfor %}
+ neighbor-group RR
+  remote-as {{ common.bgp.as }}
+  update-source Loopback0
+{% for family in node.bgp.ibgp.af %}
+{% if family == 'inet' %}
+  address-family ipv4 unicast
+{% elif family == 'inet-vpn' %}
+  address-family vpnv4 unicast
+{% endif %}
+{% endfor %}
+!
+{% for peer in node.bgp.ibgp.peers %}
+ neighbor {{ peer }}
+ use neighbor-group RR
+!
+{% endfor %}
+{% else %}
+ neighbor-group RR
+  remote-as {{ common.bgp.as }}
+  update-source Loopback0
+{% for family in node.bgp.ibgp.af %}
+{% if family == 'inet' %}
+  address-family ipv4 unicast
+{% if node.bgp.ibgp.nexthop is defined %}
+   route-policy PL-iBGP-RR-OUT out
+{% endif %}
+{% elif family == 'inet-vpn' %}
+ address-family vpnv4 unicast
+  route-policy PL-VPNV4-EXP out
+{% endif %}
+{% endfor %}
+{% for peer in node.bgp.ibgp.peers %}
+ neighbor {{ peer }}
+ use neighbor-group RR
+{% endfor %}
+{% endif %}
+{% if node.bgp.ebgp is defined %}
+{% for peer,peer_attr in node.bgp.ebgp.peers.items() %}
+ neighbor {{ peer_attr.ip }}
+  remote-as {{ peer_attr.as }}
+{% if peer_attr.af is defined and peer_attr.af == 'inet' %}
+  address-family ipv4 unicast
+   route-policy PL-eBGP-CE1-IN in
+   route-policy PL-eBGP-CE1-OUT out
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if node.vrf is defined %}
+{% for vrf,vrf_attr in node.vrf.items() %}
+ vrf {{ vrf }}
+  rd {{ vrf_attr.bgp.rd }}
+{% if vrf_attr.bgp.af == 'inet' %}
+  address-family ipv4 unicast
+  additional-paths selection route-policy BGP-PIC-EDGE-UNIPATH
+   label mode {{ vrf_attr.bgp.label_mode }}
+{% if vrf_attr.bgp.adv_conn is defined %}
+   redistribute connected
+{% endif %}
+{% endif %}
+{% for peer,peer_attr in vrf_attr.bgp.peers.items() %}
+  neighbor {{ peer_attr.ip }}
+   remote-as {{ peer_attr.as }}
+{% if peer_attr.af == 'inet' %}
+   address-family ipv4 unicast
+    route-policy PL-{{ vrf }}-eBGP-{{ peer }}-IN in
+    route-policy PL-{{ vrf }}-eBGP-{{ peer }}-OUT out
+    site-of-origin {{ peer_attr.soo }}
+{% endif %}
+   !
+  !
+{% endfor%}
+ !
+{% endfor %}
+{% endif %}

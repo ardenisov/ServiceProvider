@@ -1,0 +1,307 @@
+#
+# Nodes in core NEtwork of AS65001 Service provider
+#
+
+---
+
+common:
+        bgp: {as: 65000}
+        isis: {process: 65000}
+nodes:
+        PE2:
+                mgmt: 172.23.84.201
+                rid:  172.16.0.22
+                role: PE
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.22}
+                        PL_B: {id: 1, ip: 172.16.1.22}
+                        PL_C: {id: 2, ip: 172.16.2.22}
+                links:
+                        Gi0/0/0/1.12: {ip: 10.1.0.3, remote: CE1, vlan: 12, ce: 1, pim: 1, igmp: 1}
+                        Gi0/0/0/0.222: {ip: 10.0.0.19, remote: P2, cost: 10, vlan: 222, circuit_type: level-1}
+                        Gi0/0/0/0.1122: {ip: 10.0.0.0, remote: PE1, cost: 10, vlan: 1122, circuit_type: level-1}
+                isis: {area: "0001", net: "0022", level: level-1, lolvl: level-1, protection: per-link}
+                bgp:
+                        ibgp:   
+                                peers:
+                                        - 172.16.0.3
+                                        - 172.16.0.4
+                                af:
+                                        - inet
+                                        - inet-vpn
+                                nexthop: 1
+                                protection: backup
+                        ebgp:
+                                peers:
+                                        CE1: {ip: 10.1.0.2, as: 65001, af: inet}
+                vrf:
+                        PLANE_B:
+                                af: inet
+                                rt_out: '65000:1'
+                                rt_in: '65000:1'
+                                links:
+                                        Gi0/0/0/1.112: {ip: 10.1.0.3, remote: CE1, vlan: 112, ce: 1, pim: 1, igmp: 1}
+                                bgp:
+                                        rd: 172.16.1.22:1
+                                        nh: 172.16.1.22
+                                        af: inet
+                                        label_mode: per-vrf
+                                        adv_conn: yes
+                                        peers: 
+                                                CE1: {ip: 10.1.0.2, as: 65001, af: inet, soo: "65001:1"}
+        P2:
+                mgmt: 172.23.84.202
+                rid:  172.16.0.2
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.2}
+                        PL_B: {id: 1, ip: 172.16.1.2}
+                        PL_C: {id: 2, ip: 172.16.2.2}
+                links:
+                        Gi0/0/0/0.12: {ip: 10.0.0.21, remote: P1, cost: 10, tecost: 20, vlan: 12, circuit_type: level-1-2, rsvp: 1, affinity: AG10, protection: auto}
+                        Gi0/0/0/0.23: {ip: 10.0.0.25, remote: P3, cost: 10, tecost: 10,  vlan: 23, circuit_type: level-2-only, rsvp: 1, affinity: AG20}
+                        Gi0/0/0/0.24: {ip: 10.0.0.17, remote: P4, cost: 10, tecost: 100, vlan: 24, circuit_type: level-2-only, rsvp: 1, affinity: AG10}
+                        Gi0/0/0/0.222: {ip: 10.0.0.18, remote: PE2, cost: 10, vlan: 222, circuit_type: level-1}
+                isis: {area0: "0000", area: "0001", net: "0002",  level: level-1-2, lolvl: level-1-2, propagate: ISIS_LEAK, protection: per-prefix}
+                rsvp: 
+                        P5_PL_A: {dst: 172.16.0.5, tun: te5, cost_type: te, tldp: 0, route: {172.16.0.33}}
+                        P6_PL_A: {dst: 172.16.0.6, tun: te6, cost_type: te, tldp: 0, route: {172.16.0.44}}
+                        P1_PL_C: {dst: 172.16.0.1, tun: te21, cost_type: igp, tldp: 1, route: {172.16.2.11}, ag_incl: AG10, ag_excl: AG20, protection: fast-reroute}
+                        P5_PL_C: {dst: 172.16.0.5, tun: te25, cost_type: igp, tldp: 1, route: {172.16.2.33, 172.16.2.44}, ag_incl: AG10, ag_excl: AG20}
+                        P6_PL_C: {dst: 172.16.0.6, tun: te26, cost_type: igp, tldp: 1, route: {172.16.2.33, 172.16.2.44}, ag_incl: AG10, ag_excl: AG20}
+        P4:
+                mgmt: 172.23.84.203
+                rid:  172.16.0.4
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.4}
+                        PL_B: {id: 1, ip: 172.16.1.4}
+                        PL_C: {id: 2, ip: 172.16.2.4}
+                links:
+                        Gi0/0/0/0.14: {ip: 10.0.0.23, remote: P1, cost: 10, tecost: 10, vlan: 14, circuit_type: level-2-only, rsvp: 1, affinity: AG20}
+                        Gi0/0/0/0.24: {ip: 10.0.0.16, remote: P2, cost: 10, tecost: 100, vlan: 24, circuit_type: level-2-only, rsvp: 1, affinity: AG10}
+                        Gi0/0/0/0.34: {ip: 10.0.0.27, remote: P3, cost: 10, tecost: 10, vlan: 34, circuit_type: level-2-only, rsvp: 1, affinity: AG20}
+                        Gi0/0/0/0.45: {ip: 10.0.0.31, remote: P5, cost: 10, tecost: 10, vlan: 45, circuit_type: level-2-only, rsvp: 1, affinity: AG20}
+                        Gi0/0/0/0.46: {ip: 10.0.0.15, remote: P6, cost: 10, tecost: 100,vlan: 46, circuit_type: level-2-only, rsvp: 1, affinity: AG10}
+                isis: {area0: "0000", net: "0004", level: level-2-only, lolvl: level-2-only, protection: per-prefix}
+                rsvp: 1
+                bgp:
+                        ibgp:
+                                rr: 
+                                        - 172.16.0.11
+                                        - 172.16.0.22
+                                        - 172.16.0.33
+                                        - 172.16.0.44
+                                peers:
+                                        - 172.16.0.3
+                                af:
+                                        - inet
+                                        - inet-vpn
+                        protection: backup
+        P6:
+                mgmt: 172.23.84.204
+                rid:  172.16.0.6
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.6}
+                        PL_B: {id: 1, ip: 172.16.1.6}
+                        PL_C: {id: 2, ip: 172.16.2.6}
+                links:
+                        Gi0/0/0/0.36: {ip: 10.0.0.29, remote: P3, cost: 10, tecost: 10, vlan: 36, circuit_type: level-2-only, rsvp: 1, affinity: AG20}
+                        Gi0/0/0/0.46: {ip: 10.0.0.14, remote: P4, cost: 10, tecost: 100, vlan: 46, circuit_type: level-2-only, rsvp: 1, affinity: AG10}
+                        Gi0/0/0/0.56: {ip: 10.0.0.33, remote: P5, cost: 10, tecost: 20, vlan: 56, circuit_type: level-1-2, rsvp: 1, affinity: AG10, protection: auto}
+                        Gi0/0/0/0.644: {ip: 10.0.0.13, remote: PE4, cost: 10, vlan: 644, circuit_type: level-1}
+                isis: {area0: "0000", area: "0002", net: "0006", level: level-1-2, lolvl: level-1-2, propagate: ISIS_LEAK, protection: per-prefix}
+                rsvp:
+                        P1_PL_A: {dst: 172.16.0.1, tun: te1, cost_type: te, tldp: 0, route: {172.16.0.11}}
+                        P2_PL_A: {dst: 172.16.0.2, tun: te2, cost_type: te, tldp: 0, route: {172.16.0.22}}
+                        P1_PL_C: {dst: 172.16.0.1, tun: te21, cost_type: igp, tldp: 1, route: {172.16.2.11, 172.16.2.22}, ag_incl: AG10, ag_excl: AG20}
+                        P2_PL_C: {dst: 172.16.0.2, tun: te22, cost_type: igp, tldp: 1, route: {172.16.2.11, 172.16.2.22}, ag_incl: AG10, ag_excl: AG20}
+                        P5_PL_C: {dst: 172.16.0.5, tun: te25, cost_type: igp, tldp: 1, route: {172.16.2.33}, ag_incl: AG10, ag_excl: AG20, protection: fast-reroute}
+        PE4:
+                mgmt: 172.23.84.205
+                rid:  172.16.0.44
+                role: PE
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.44}
+                        PL_B: {id: 1, ip: 172.16.1.44}
+                        PL_C: {id: 2, ip: 172.16.2.44}
+                links:
+                        Gi0/0/0/1.24: {ip: 10.2.0.3, remote: CE2, vlan: 24, ce: 1, pim: 1, igmp: 1}
+                        Gi0/0/0/0.644: {ip: 10.0.0.12, remote: P6, cost: 10, vlan: 644, circuit_type: level-1}
+                        Gi0/0/0/0.3344: {ip: 10.0.0.11, remote: PE3, cost: 10, vlan: 3344, circuit_type: level-1}
+                isis: {area: "0002", net: "0044", level: level-1, lolvl: level-1, protection: per-link}
+                bgp:
+                        ibgp:
+                                peers:
+                                        - 172.16.0.3
+                                        - 172.16.0.4
+                                af:
+                                        - inet
+                                        - inet-vpn
+                                nexthop: 1
+                                protection: backup
+                        ebgp:
+                                peers:
+                                        CE2: {ip: 10.2.0.2, as: 65002, af: inet}
+                vrf:
+                        PLANE_B:
+                                af: inet
+                                rt_out: '65000:1'
+                                rt_in: '65000:1'
+                                links:
+                                        Gi0/0/0/1.124: {ip: 10.2.0.3, remote: CE2, vlan: 124, ce: 1, pim: 1, igmp: 1}
+                                bgp:
+                                        rd: 172.16.1.44:1
+                                        nh: 172.16.1.44
+                                        af: inet
+                                        label_mode: per-vrf
+                                        adv_conn: yes
+                                        peers:
+                                                CE2: {ip: 10.2.0.2, as: 65002, af: inet, soo: "65002:1"}
+        PE1:
+                mgmt: 172.23.84.206
+                rid:  172.16.0.11
+                role: PE
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.11}
+                        PL_B: {id: 1, ip: 172.16.1.11}
+                        PL_C: {id: 2, ip: 172.16.2.11}
+                links:
+                        ge-0/0/1.111: {ip: 10.1.0.1, remote: CE1, vlan: 111, ce: 1, pim: 1, igmp: 1, vrf: PLANE_B}
+                        ge-0/0/1.11: {ip: 10.1.0.1, remote: CE1, vlan: 11, ce: 1, pim: 1, igmp: 1}
+                        ge-0/0/0.111: {ip: 10.0.0.2, remote: P1, cost: 10, vlan: 111, circuit_type: level-1}
+                        ge-0/0/0.1122: {ip: 10.0.0.1, remote: PE2, cost: 10, vlan: 1122, circuit_type: level-1}
+                isis: {area: "0001", net: "0011", level: level-1, lolvl: level-1, protection: link-protection}
+                bgp:
+                        ibgp:
+                                peers:
+                                        - 172.16.0.3
+                                        - 172.16.0.4
+                                af:
+                                        - inet
+                                        - inet-vpn
+                                nexthop: 1
+                                protection: backup
+                        ebgp:
+                                peers:
+                                        CE1: {ip: 10.1.0.0, as: 65001, af: inet}
+                vrf:
+                        PLANE_B:
+                                af: inet
+                                rt_out: '65000:1'
+                                rt_in: '65000:1'
+                                links:
+                                        - ge-0/0/1.111
+                                bgp:
+                                        rd: 172.16.1.11:1
+                                        nh: 172.16.1.11
+                                        af: inet
+                                        label_mode: per-vrf
+                                        adv_conn: yes
+                                        peers:
+                                                CE1: {ip: 10.1.0.0, as: 65001, af: inet, soo: "65001:1"}
+        P1:
+                mgmt: 172.23.84.207
+                rid:  172.16.0.1
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.1}
+                        PL_B: {id: 1, ip: 172.16.1.1}
+                        PL_C: {id: 2, ip: 172.16.2.1}
+                links:
+                        ge-0/0/0.111: {ip: 10.0.0.3, remote: PE1, cost: 10, vlan: 111, circuit_type: level-1}
+                        ge-0/0/0.12: {ip: 10.0.0.20, remote: P2, cost: 10, tecost: 20, vlan: 12, circuit_type: level-1-2, rsvp: 1, affinity: AG10}
+                        ge-0/0/0.14: {ip: 10.0.0.22, remote: P4, cost: 10, tecost: 10,  vlan: 14, circuit_type: level-2-only, rsvp: 1, affinity: AG20, protection: link-protection}
+                        ge-0/0/0.13: {ip: 10.0.0.4, remote: P3, cost: 10, tecost: 100, vlan: 13, circuit_type: level-2-only, rsvp: 1, affinity: AG10}
+                isis: {area0: "0000", area: "0001", net: "0001", level: level-1-2, lolvl: level-1-2, propagate: ISIS_LEAK, protection: node-link-protection}
+                rsvp: 
+                        P5_PL_A: {dst: 172.16.0.5, tun: te5, cost_type: te, tldp: 0, route: {172.16.0.33}}
+                        P6_PL_A: {dst: 172.16.0.6, tun: te6, cost_type: te, tldp: 0, route: {172.16.0.44}}
+                        P2_PL_C: {dst: 172.16.0.2, tun: te22, cost_type: igp, tldp: 1, route: {172.16.2.22}, ag_incl: AG10, ag_excl: AG20, protection: link-protection}
+                        P5_PL_C: {dst: 172.16.0.5, tun: te25, cost_type: igp, tldp: 1, route: {172.16.2.33, 172.16.2.44}, ag_incl: AG10, ag_excl: AG20}
+                        P6_PL_C: {dst: 172.16.0.6, tun: te26, cost_type: igp, tldp: 1, route: {172.16.2.33, 172.16.2.44}, ag_incl: AG10, ag_excl: AG20}
+        P3:
+                mgmt: 172.23.84.208
+                rid:  172.16.0.3
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.3}
+                        PL_B: {id: 1, ip: 172.16.1.3}
+                        PL_C: {id: 2, ip: 172.16.2.3}
+                links:
+                        ge-0/0/0.13: {ip: 10.0.0.5, remote: P1, cost: 10, tecost: 100, vlan: 13, circuit_type: level-2-only, rsvp: 1, affinity: AG10}
+                        ge-0/0/0.23: {ip: 10.0.0.24, remote: P2, cost: 10, tecost: 10, vlan: 23, circuit_type: level-2-only, rsvp: 1, affinity: AG20}
+                        ge-0/0/0.34: {ip: 10.0.0.26, remote: P4, cost: 10, tecost: 10, vlan: 34, circuit_type: level-2-only, rsvp: 1, affinity: AG20}
+                        ge-0/0/0.36: {ip: 10.0.0.28, remote: P6, cost: 10, tecost: 10, vlan: 36, circuit_type: level-2-only, rsvp: 1, affinity: AG20}
+                        ge-0/0/0.35: {ip: 10.0.0.6, remote: P5, cost: 10, tecost: 100, vlan: 35, circuit_type: level-2-only, rsvp: 1, affinity: AG10}
+                isis: {area0: "0000", net: "0003", level: level-2-only, lolvl: level-2-only, protection: node-link-protection}
+                rsvp: 1
+                bgp:
+                        ibgp:
+                                rr: 
+                                        - 172.16.0.11
+                                        - 172.16.0.22
+                                        - 172.16.0.33
+                                        - 172.16.0.44
+                                peers:
+                                        - 172.16.0.4
+                                af:
+                                        - inet
+                                        - inet-vpn
+        P5:
+                mgmt: 172.23.84.209
+                rid:  172.16.0.5
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.5}
+                        PL_B: {id: 1, ip: 172.16.1.5}
+                        PL_C: {id: 2, ip: 172.16.2.5}
+                links:
+                        ge-0/0/0.35: {ip: 10.0.0.7, remote: P3, cost: 10, tecost: 100, vlan: 35, circuit_type: level-2-only, rsvp: 1, affinity: AG10}
+                        ge-0/0/0.45: {ip: 10.0.0.30, remote: P4, cost: 10, tecost: 10, vlan: 45, circuit_type: level-2-only, rsvp: 1, affinity: AG20}
+                        ge-0/0/0.56: {ip: 10.0.0.32, remote: P6, cost: 10, tecost: 20, vlan: 56, circuit_type: level-1-2, rsvp: 1, affinity: AG10, protection: link-protection}
+                        ge-0/0/0.533: {ip: 10.0.0.8, remote: PE3, cost: 10, vlan: 533, circuit_type: level-1}
+                isis: {area0: "0000", area: "0002", net: "0005", level: level-1-2, lolvl: level-1-2, propagate: ISIS_LEAK, protection: node-link-protection}
+                rsvp: 
+                        P1_PL_A: {dst: 172.16.0.1, tun: te1, cost_type: te, tldp: 0, route: {172.16.0.11}}
+                        P2_PL_A: {dst: 172.16.0.2, tun: te2, cost_type: te, tldp: 0, route: {172.16.0.22}}
+                        P1_PL_C: {dst: 172.16.0.1, tun: te21, cost_type: igp, tldp: 1, route: {172.16.2.11, 172.16.2.22}, ag_incl: AG10, ag_excl: AG20}
+                        P2_PL_C: {dst: 172.16.0.2, tun: te22, cost_type: igp, tldp: 1, route: {172.16.2.11, 172.16.2.22}, ag_incl: AG10, ag_excl: AG20}
+                        P6_PL_C: {dst: 172.16.0.6, tun: te26, cost_type: igp, tldp: 1, route: {172.16.2.44}, ag_incl: AG10, ag_excl: AG20, protection: link-protection}
+        PE3:
+                mgmt: 172.23.84.210
+                rid:  172.16.0.33
+                role: PE
+                loops:
+                        PL_A: {id: 0, ip: 172.16.0.33}
+                        PL_B: {id: 1, ip: 172.16.1.33}
+                        PL_C: {id: 2, ip: 172.16.2.33}
+                links:
+                        ge-0/0/1.123: {ip: 10.2.0.1, remote: CE2, vlan: 123, ce: 1, pim: 1, igmp: 1, vrf: PLANE_B}
+                        ge-0/0/1.23: {ip: 10.2.0.1, vlan: 23, remote: CE2, ce: 1, pim: 1, igmp: 1}
+                        ge-0/0/0.533: {ip: 10.0.0.9, remote: P5, cost: 10, vlan: 533, circuit_type: level-1}
+                        ge-0/0/0.3344: {ip: 10.0.0.10, remote: PE4, cost: 10, vlan: 3344, circuit_type: level-1}
+                isis: {area: "0002", net: "0033", level: level-1, lolvl: level-1, protection: link-protection}
+                bgp:
+                        ibgp:
+                                peers:
+                                        - 172.16.0.3
+                                        - 172.16.0.4
+                                af:
+                                        - inet
+                                        - inet-vpn
+                                nexthop: 1
+                                protection: backup
+                        ebgp:
+                                peers:
+                                        CE2: {ip: 10.2.0.0, af: inet, as: 65002}
+                vrf:
+                        PLANE_B:
+                                af: inet
+                                rt_out: '65000:1'
+                                rt_in: '65000:1'
+                                links:
+                                        - ge-0/0/1.123
+                                bgp:
+                                        rd: 172.16.1.33:1
+                                        nh: 172.16.1.33
+                                        af: inet
+                                        label_mode: per-vrf
+                                        adv_conn: yes
+                                        peers:
+                                                CE2: {ip: 10.2.0.0, as: 65002, af: inet, soo: "65002:1"}

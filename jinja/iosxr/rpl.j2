@@ -1,0 +1,74 @@
+{#
+**************************************************
+###         Routing configuration            ######
+**************************************************
+#}
+{% if node.isis.propagate is defined %}
+route-policy ISIS_LEAK
+   if destination in (172.16.0.0/22 eq 32) then
+     pass
+   endif
+end-policy
+{% endif %}
+!
+{% if node.bgp is defined %}
+{% if node.bgp.ibgp.nexthop is defined %}
+route-policy PL-iBGP-RR-OUT
+   set next-hop self
+end-policy
+!
+route-policy PL-eBGP-CE1-IN
+  pass
+end-policy
+!
+route-policy PL-eBGP-CE1-OUT
+  set med 100
+  pass
+end-policy
+{% endif %}
+!
+{% if node.vrf is defined %}
+{% for vrf,vrf_attr in node.vrf.items() %}
+{% for peer,peer_attr in vrf_attr.bgp.peers.items() %}
+route-policy PL-{{ vrf }}-eBGP-{{ peer }}-IN
+  pass
+end-policy
+!
+route-policy PL-{{ vrf }}-eBGP-{{ peer }}-OUT
+  set med 100
+  pass
+end-policy
+!
+{% endfor %}
+{% endfor %}
+{% endif %}
+!
+{% if node.bgp.ibgp.rr is defined %}
+route-policy BGP-PIC-EDGE-UNIPATH
+  set path-selection backup 1 advertise
+end-policy
+!
+{% elif node.bgp.ibgp.protection is defined  and node.bgp.ibgp.protection == 'backup' %}
+route-policy BGP-PIC-EDGE-UNIPATH
+  set path-selection backup 1 install
+end-policy
+!
+{% endif %}
+{% endif %}
+
+{% if node.vrf is defined %}
+{% for vrf,vrf_attr in node.vrf.items() %}
+extcommunity-set rt {{ vrf }}
+  {{ vrf_attr.rt_out }}
+end-set
+!
+route-policy PL-VPNV4-EXP
+  if extcommunity rt matches-any {{ vrf }} then
+    set next-hop {{ vrf_attr.bgp.nh }}
+  endif
+  pass
+end-policy
+!
+{% endfor %}
+{% endif %}
+

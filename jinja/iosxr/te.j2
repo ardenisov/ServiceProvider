@@ -1,0 +1,73 @@
+{#
+**************************************************
+##         TE tunnels configuration            ######
+**************************************************
+#}
+ipv4 unnumbered mpls traffic-eng Loopback0
+!
+{% if node.rsvp is defined and node.rsvp !=1 %}
+{% for rsvp_dst,rsvp_attr in node.rsvp.items()|sort %}
+interface tunnel-{{ rsvp_attr.tun }}
+ apply-group GR-LSP
+ signalled-name {{ inventory_hostname }}-->{{ rsvp_dst }}
+ path-selection metric {{ rsvp_attr.cost_type }}
+ destination {{ rsvp_attr.dst }}
+{% for route in rsvp_attr.route %}
+ autoroute destination {{ route }}
+{% endfor %}
+{% if rsvp_attr.ag_incl is defined %}
+ affinity include {{ rsvp_attr.ag_incl }}
+{% endif%}
+{% if rsvp_attr.ag_excl is defined %}
+ affinity exclude {{ rsvp_attr.ag_excl }}
+{% endif %}
+{% if rsvp_attr.protection is defined %}
+ {{ rsvp_attr.protection }}
+{% endif %}
+{% endfor %}
+{% endif %}
+!
+{% if node.rsvp is defined%}
+rsvp
+{% for intf,intf_attr in node.links.items()|sort %}
+{% if intf_attr.rsvp is defined and intf_attr.rsvp == 1  %}
+ interface {{ intf }}
+{% endif %}
+{% else %}
+ no interface {{ intf }}
+{% endfor %}
+!
+mpls traffic-eng
+reoptimize 30
+reoptimize timers delay installation 15
+{% for intf,intf_attr in node.links.items()|sort %}
+{% if intf_attr.rsvp is defined and intf_attr.rsvp == 1  %}
+ interface {{ intf }}
+{% if intf_attr.tecost is defined and intf_attr.tecost != 0  %}
+ admin-weight {{ intf_attr.tecost }}
+{% endif %}
+{% if intf_attr.affinity is defined %}
+ attribute-names {{ intf_attr.affinity }}
+{% endif %}
+{% if intf_attr.protection is defined and intf_attr.protection == 'auto' %}
+  auto-tunnel backup
+   attribute-set PLANE_C
+  !
+{% endif %}
+{% else %}
+ no interface {{ intf }}
+{% endif %}
+{% endfor %}
+ affinity-map AG10 bit-position 10
+ affinity-map AG20 bit-position 20
+ attribute-set auto-backup PLANE_C
+  affinity include AG10
+  affinity exclude AG20
+  exit
+!
+ auto-tunnel backup
+  tunnel-id min 101 max 199
+  exit
+!
+{% endif %}
+

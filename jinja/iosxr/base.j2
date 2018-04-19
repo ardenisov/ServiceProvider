@@ -1,0 +1,51 @@
+{% set node = nodes[inventory_hostname] %}
+{#
+**************************************************
+###         System configuration            ######
+**************************************************
+#}
+hostname {{inventory_hostname}}
+domain name croclab.ru
+
+{% if node.vrf is defined %}
+{% for vrf,vrf_attr in node.vrf.items() %}
+vrf {{ vrf }}
+{% if vrf_attr.af is defined and vrf_attr.af == 'inet' %}
+ address-family ipv4 unicast
+  import route-target
+   {{ vrf_attr.rt_in }}
+  !
+  export route-target
+   {{ vrf_attr.rt_out }}
+{% endif %}
+!
+{% endfor %}
+{% endif %}
+mpls oam
+ssh server v2
+ssh server logging
+xml agent ssl
+ iteration off
+!
+xml agent tty
+ iteration off
+!
+netconf agent tty
+!
+{% include 'ifs.j2' %}
+{% include 'routing.j2' %}
+{% include 'groups.j2' %}
+{% include 'rpl.j2' %}
+{% include 'isis.j2' %}
+{% include 'ldp.j2' %}
+{#{% include 'te.j2' %}
+#}
+{% if node.bgp is defined %}
+{% include 'bgp.j2' %}
+{% endif %}
+{% if node.role is defined and node.role == 'PE' %}
+{% include 'mc.j2' %}
+{% endif %}
+!
+end
+

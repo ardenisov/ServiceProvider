@@ -1,0 +1,10 @@
+ - name: Generate configuration files for all nodes
+   connection: local
+   hosts: "{{ target }}"
+   tasks:
+      - include_vars: "/etc/ansible/SP/nodes.yml"
+      - name: create directory for cfg files
+        file: path=/etc/ansible/SP/config/{{dev_os}} state=directory
+        run_once: true
+      - name: Gen cfg
+        template: src=/etc/ansible/SP/jinja/{{dev_os}}/base.j2 dest=/etc/ansible/SP/config/{{dev_os}}/{{inventory_hostname}}.cfg

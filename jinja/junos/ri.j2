@@ -1,0 +1,53 @@
+{#
+**************************************************
+###         Routing Options        ######
+##**************************************************
+##    #}
+routing-instances {
+{% for vrf,vrf_attr in node.vrf.items() %}
+    {{ vrf }} {
+        instance-type vrf;
+{% for intf in vrf_attr.links %}
+        interface {{ intf }};
+{% endfor %}
+        route-distinguisher {{ vrf_attr.bgp.rd }};
+        vrf-import PL-{{ vrf }}-IMP;
+        vrf-export PL-{{ vrf }}-EXP;
+{% if vrf_attr.label_mode is defined and vrf_attr.label_mode == 'per-vrf' %}
+        vrf-table-label;
+{% endif %}
+	routing-options {
+        	protect core;
+	}
+        protocols {
+            bgp {
+{% for peer,peer_attr in vrf_attr.bgp.peers.items() %}
+{% set new_as = peer_attr.as %}
+{% if old_as is defined and old_as == new_as %}
+                neighbor {{ peer_attr.ip }} {
+                        import PL-{{ vrf }}-eBGP-{{ peer }}-IN;
+                        export PL-{{ vrf }}-eBGP-{{ peer }}-OUT;
+                }
+            }
+{% else %}
+        	group eBGP-{{ new_as }} {
+{% if peer_attr.af == 'inet' %}
+                	family inet {
+                        unicast;
+                	}
+{% endif %}
+                	peer-as {{ peer_attr.as }};
+                	neighbor {{ peer_attr.ip }} {
+                        	import PL-{{ vrf }}-eBGP-{{ peer }}-IN;
+                        	export PL-{{ vrf }}-eBGP-{{ peer }}-OUT;
+                	}
+        	}
+{% endif %}
+{% set old_as = new_as %}
+{% endfor %}
+	}
+  }
+ }
+{% endfor %}
+}
+

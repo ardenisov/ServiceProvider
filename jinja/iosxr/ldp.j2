@@ -1,0 +1,35 @@
+{#
+**************************************************
+###         LDP configuration            ######
+**************************************************
+##}
+ipv4 access-list AL-LOCAL-PLANE-B-C
+10 permit ipv4 172.16.1.0 0.0.0.255 any
+20 permit ipv4 172.16.2.0 0.0.0.255 any
+30 deny ipv4 any any
+!
+mpls ldp
+ mldp
+ session protection
+  address-family ipv4
+!
+{% for intf, intf_attr in node.links.items()|sort %}
+{% if intf_attr.ce is defined %}
+{% else %}
+ interface {{ intf }}
+  address-family ipv4
+{% endif %}
+{% endfor %}
+!
+{% if node.rsvp is defined and node.rsvp !=1 %}
+{% for rsvp_dst,rsvp_attr in node.rsvp.items()|sort %}
+{% if rsvp_attr.tldp is defined and rsvp_attr.tldp == 1 %}
+ interface tunnel-{{ rsvp_attr.tun }}
+  address-family ipv4
+{% else %}
+ no interface tunnel-{{ rsvp_attr.tun }}
+{% endif %}
+{% endfor %}
+{% endif %}
+!
+

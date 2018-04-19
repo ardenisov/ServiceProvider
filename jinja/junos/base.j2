@@ -1,0 +1,73 @@
+{% set node = nodes[inventory_hostname] %}
+{% include 'groups.j2' %}
+{% include 'rpl.j2' %}
+{% include 'ifs.j2' %}
+{% include 'routing.j2' %}
+protocols {
+{% include 'isis.j2' %}
+{% include 'ldp.j2' %}
+{#
+{% include 'te.j2' %}
+#}
+{% if node.bgp is defined %}
+{% include 'bgp.j2' %}
+{% endif %}
+{% if node.role is defined and node.role == 'PE' %}
+{% include 'mc.j2' %}
+{% endif %}
+}
+{% if node.vrf is defined %}
+{% include 'ri.j2'%}
+{% endif %}
+{#
+**************************************************
+###         System configuration            ######
+**************************************************
+#}
+system {
+    host-name {{inventory_hostname}};
+    no-redirects;
+    root-authentication {
+        encrypted-password "$6$zePqZ43t$tNLCSIkGiRZp0UCPA174/.I7kN8uCGbsQnjVJCz6Grr0xGFQ9ixkMVeM3pV5WZW1P9VWhrOMBVAynAqMJSOyc/"; ## SECRET-DATA
+    }
+    login {
+        user croc {
+            uid 2000;
+            class super-user;
+            authentication {
+                encrypted-password "$6$I8oiCdkQ$OIRXVyUL06jVIcoq2gNgmdKolULGWx1lkPcSnnM2hGS5cx7W4Wxu5NBDDg95h7EpFPiwXJdjvxurxYlvUKWqT."; ## SECRET-DATA
+                ssh-rsa "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDgvPzT89KIHwCwSqasZLP90dIe3FuMzUHUzhc9GnQcn08m9cktCvVSOIJtSgV8pXIB+notkBiE3qLzpWqvwMr2Xj4nuiEntWj+MHjEZpDAgQm1FTsgF0Pyx+gYgoIjc5NE5+YTq07W6voEfFr4yAvYVUIjN7zREc9HOrlmhDxZxXOfziii09GczJ55B+K4Lv1HQHmKpgBmO3aVnVJKb8EKzVk2OYZ83N8KhiIrtSPihMC5GOoA5b3gdY6ktP+iJ9mNXcFAQd2OfQC2hBPk7BDwunep4Cz+dii+FSAqRn8Bb5lXUYjcG/VJEeRVibNAtgeepUSU5pjT/cZB9H4Ed0RR root@ssudilovsky-mob.croc.ru"; ## SECRET-DATA
+            }
+        }
+    }
+    services {
+        ssh;
+        telnet;
+        netconf {
+            ssh;
+            traceoptions {
+                file nc.txt size 1m world-readable;
+                flag incoming;
+            }
+        }
+    }
+    syslog {
+        user * {
+            any none;
+        }
+	console {
+	   any none;
+	}
+        file messages {
+            any any;
+            authorization info;
+        }
+        file interactive-commands {
+            interactive-commands any;
+        }
+    }
+}
+chassis {
+    network-services ip;
+}
+
