@@ -1,22 +1,5 @@
 {% set node = nodes[inventory_hostname] %}
-<<<<<<< HEAD
-=======
-{% include 'ifs.j2' %}
-{% include 'routing.j2' %}
-{% include 'groups.j2' %}
-{% include 'rpl.j2' %}
-{% include 'isis.j2' %}
-{% include 'ldp.j2' %}
-{#{% include 'te.j2' %}
-#}
-{% if node.bgp is defined %}
-{% include 'bgp.j2' %}
-{% endif %}
-{% if node.role is defined and node.role == 'PE' %}
-{% include 'mc.j2' %}
-{% endif %}
 !
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
 {#
 **************************************************
 ###         System configuration            ######
@@ -24,7 +7,6 @@
 #}
 hostname {{inventory_hostname}}
 domain name croclab.ru
-<<<<<<< HEAD
 
 {% if node.vrf is defined %}
 {% for vrf,vrf_attr in node.vrf.items() %}
@@ -40,9 +22,7 @@ vrf {{ vrf }}
 !
 {% endfor %}
 {% endif %}
-=======
 !
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
 mpls oam
 ssh server v2
 ssh server logging
@@ -54,7 +34,6 @@ xml agent tty
 !
 netconf agent tty
 !
-<<<<<<< HEAD
 {% include 'ifs.j2' %}
 {% include 'routing.j2' %}
 {% include 'groups.j2' %}
@@ -72,6 +51,3 @@ netconf agent tty
 !
 end
 
-=======
-end
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4

@@ -1,11 +1,5 @@
 [edit]
 - version 17.2R1.13;
-<<<<<<< HEAD
-[edit routing-instances PLANE_B]
-+    routing-options {
-+        protect core;
-+    }
-=======
-[edit protocols pim]
-+    mldp-inband-signalling;
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
+[edit protocols ldp]
++   export PL-LDP-EXPORT;
++   egress-policy PL-LDP-EGRESS;

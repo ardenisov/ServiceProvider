@@ -5,10 +5,28 @@
 #}
 multicast-routing
  address-family ipv4
+  interface Loopback0
+   enable
+  mdt source Loopback0
 {% for intf,intf_attr in node.links.items()|sort %}
 {% if intf_attr.igmp is defined %}
   interface {{ intf }}
   enable
 {% endif %}
 {% endfor %}
+!
+{% if node.vrf is defined %}
+{% for vrf,vrf_attr in node.vrf.items() %}
+ vrf {{ vrf }}
+  address-family ipv4
+   bgp auto-discovery mldp
+   mdt default mldp p2mp
+{% for intf,intf_attr in vrf_attr.links.items()|sort %}
+{% if intf_attr.igmp is defined %}
+   interface {{ intf }}
+    enable
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endif %}
 

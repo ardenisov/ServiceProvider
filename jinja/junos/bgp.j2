@@ -25,6 +25,11 @@
 		family inet-vpn {
 			unicast;
 		}
+{% elif family == 'inet-mvpn' %}
+                family inet-mvpn {
+                        signaling;
+                }
+                mvpn-iana-rt-import;
 {% endif %}
 {% endfor %}
 {% for peer in node.bgp.ibgp.rr %}
@@ -54,6 +59,11 @@
                 family inet-vpn {
                         unicast;
                 }
+{% elif family == 'inet-mvpn' %}
+                family inet-mvpn {
+                        signaling;
+                }
+		mvpn-iana-rt-import;
 {% endif %}
 {% endfor %}
 {% for peer in node.bgp.ibgp.peers %}

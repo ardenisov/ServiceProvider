@@ -5,35 +5,23 @@
 #}
 	igmp {
 {% for intf,intf_attr in node.links.items()|sort %}
-<<<<<<< HEAD
 {% if intf_attr.vrf is defined %}
 {% else %}
 {% if intf_attr.igmp is defined %}
            	interface {{ intf }} version 3;
 {% endif %}
 {% endif %}
-=======
-{% if intf_attr.igmp is defined %}
-           	interface {{ intf }} version 3;
-{% endif %}
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
 {% endfor %}
 	}
 	pim {
 	   mldp-inband-signalling;
 {% for intf,intf_attr in node.links.items()|sort %}
-<<<<<<< HEAD
 {% if intf_attr.vrf is defined %}
 {% else %}
 {% if intf_attr.pim is defined %}
            interface {{ intf }};
 {% endif %}
 {% endif %}
-=======
-{% if intf_attr.pim is defined %}
-           interface {{ intf }};
-{% endif %}
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
 {% endfor %}
 	}
 

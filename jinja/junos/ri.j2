@@ -2,7 +2,7 @@
 **************************************************
 ###         Routing Options        ######
 ##**************************************************
-##    #}
+#}
 routing-instances {
 {% for vrf,vrf_attr in node.vrf.items() %}
     {{ vrf }} {
@@ -13,12 +13,13 @@ routing-instances {
         route-distinguisher {{ vrf_attr.bgp.rd }};
         vrf-import PL-{{ vrf }}-IMP;
         vrf-export PL-{{ vrf }}-EXP;
-{% if vrf_attr.label_mode is defined and vrf_attr.label_mode == 'per-vrf' %}
+{% if vrf_attr.bgp.label_mode is defined and vrf_attr.bgp.label_mode == 'per-vrf' %}
         vrf-table-label;
 {% endif %}
 	routing-options {
         	protect core;
 	}
+	interface vt-2/0/0.101 multicast;
         protocols {
             bgp {
 {% for peer,peer_attr in vrf_attr.bgp.peers.items() %}
@@ -46,7 +47,13 @@ routing-instances {
 {% set old_as = new_as %}
 {% endfor %}
 	}
-  }
+	    pim {
+{% for intf in vrf_attr.links %}
+        	interface {{ intf }};
+{% endfor %}
+		}
+	    mvpn;
+   }
  }
 {% endfor %}
 }

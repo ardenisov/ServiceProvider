@@ -14,11 +14,9 @@ bgp router-id {{ node.rid }}
   additional-paths selection route-policy BGP-PIC-EDGE-UNIPATH
 {% endif %}
 {% elif family == 'inet-vpn' %}
-<<<<<<< HEAD
  address-family vpnv4 unicast
-=======
-address-family vpnv4 unicast
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
+{% elif family == 'inet-mvpn' %}
+ address-family ipv4 mvpn
 {% endif %}
 {% endfor %}
 !
@@ -32,11 +30,10 @@ address-family vpnv4 unicast
   address-family ipv4 unicast
    route-reflector-client
 {% elif family == 'inet-vpn' %}
-<<<<<<< HEAD
   address-family vpnv4 unicast
-=======
- address-family vpnv4 unicast
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
+   route-reflector-client
+{% elif family == 'inet-mvpn' %}
+  address-family ipv4 mvpn
    route-reflector-client
 {% endif %}
 {% endfor %}
@@ -53,11 +50,9 @@ address-family vpnv4 unicast
 {% if family == 'inet' %}
   address-family ipv4 unicast
 {% elif family == 'inet-vpn' %}
-<<<<<<< HEAD
   address-family vpnv4 unicast
-=======
- address-family vpnv4 unicast
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
+{% elif family == 'inet-mvpn' %}
+  address-family ipv4 mvpn
 {% endif %}
 {% endfor %}
 !
@@ -78,10 +73,10 @@ address-family vpnv4 unicast
 {% endif %}
 {% elif family == 'inet-vpn' %}
  address-family vpnv4 unicast
-<<<<<<< HEAD
   route-policy PL-VPNV4-EXP out
-=======
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
+{% elif family == 'inet-mvpn' %}
+  address-family ipv4 mvpn
+   route-policy PL-VPNV4-EXP out
 {% endif %}
 {% endfor %}
 {% for peer in node.bgp.ibgp.peers %}
@@ -101,7 +96,6 @@ address-family vpnv4 unicast
 {% endfor %}
 {% endif %}
 
-<<<<<<< HEAD
 {% if node.vrf is defined %}
 {% for vrf,vrf_attr in node.vrf.items() %}
  vrf {{ vrf }}
@@ -114,6 +108,7 @@ address-family vpnv4 unicast
    redistribute connected
 {% endif %}
 {% endif %}
+  address-family ipv4 mvpn
 {% for peer,peer_attr in vrf_attr.bgp.peers.items() %}
   neighbor {{ peer_attr.ip }}
    remote-as {{ peer_attr.as }}
@@ -129,6 +124,3 @@ address-family vpnv4 unicast
  !
 {% endfor %}
 {% endif %}
-=======
-
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4

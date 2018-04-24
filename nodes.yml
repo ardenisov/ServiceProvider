@@ -28,17 +28,13 @@ nodes:
                                         - 172.16.0.4
                                 af:
                                         - inet
-<<<<<<< HEAD
                                         - inet-vpn
-=======
-#                                        - inet-vpn
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
+                                        - inet-mvpn
                                 nexthop: 1
                                 protection: backup
                         ebgp:
                                 peers:
                                         CE1: {ip: 10.1.0.2, as: 65001, af: inet}
-<<<<<<< HEAD
                 vrf:
                         PLANE_B:
                                 af: inet
@@ -54,8 +50,6 @@ nodes:
                                         adv_conn: yes
                                         peers: 
                                                 CE1: {ip: 10.1.0.2, as: 65001, af: inet, soo: "65001:1"}
-=======
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
         P2:
                 mgmt: 172.23.84.202
                 rid:  172.16.0.2
@@ -101,11 +95,8 @@ nodes:
                                         - 172.16.0.3
                                 af:
                                         - inet
-<<<<<<< HEAD
                                         - inet-vpn
-=======
-#                                        - inet-vpn
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
+                                        - inet-mvpn
                         protection: backup
         P6:
                 mgmt: 172.23.84.204
@@ -146,17 +137,13 @@ nodes:
                                         - 172.16.0.4
                                 af:
                                         - inet
-<<<<<<< HEAD
                                         - inet-vpn
-=======
-#                                        - inet-vpn
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
+                                        - inet-mvpn
                                 nexthop: 1
                                 protection: backup
                         ebgp:
                                 peers:
                                         CE2: {ip: 10.2.0.2, as: 65002, af: inet}
-<<<<<<< HEAD
                 vrf:
                         PLANE_B:
                                 af: inet
@@ -172,8 +159,6 @@ nodes:
                                         adv_conn: yes
                                         peers:
                                                 CE2: {ip: 10.2.0.2, as: 65002, af: inet, soo: "65002:1"}
-=======
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
         PE1:
                 mgmt: 172.23.84.206
                 rid:  172.16.0.11
@@ -183,10 +168,7 @@ nodes:
                         PL_B: {id: 1, ip: 172.16.1.11}
                         PL_C: {id: 2, ip: 172.16.2.11}
                 links:
-<<<<<<< HEAD
                         ge-0/0/1.111: {ip: 10.1.0.1, remote: CE1, vlan: 111, ce: 1, pim: 1, igmp: 1, vrf: PLANE_B}
-=======
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
                         ge-0/0/1.11: {ip: 10.1.0.1, remote: CE1, vlan: 11, ce: 1, pim: 1, igmp: 1}
                         ge-0/0/0.111: {ip: 10.0.0.2, remote: P1, cost: 10, vlan: 111, circuit_type: level-1}
                         ge-0/0/0.1122: {ip: 10.0.0.1, remote: PE2, cost: 10, vlan: 1122, circuit_type: level-1}
@@ -198,17 +180,13 @@ nodes:
                                         - 172.16.0.4
                                 af:
                                         - inet
-<<<<<<< HEAD
                                         - inet-vpn
-=======
-#                                        - inet-vpn
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
+                                        - inet-mvpn
                                 nexthop: 1
                                 protection: backup
                         ebgp:
                                 peers:
                                         CE1: {ip: 10.1.0.0, as: 65001, af: inet}
-<<<<<<< HEAD
                 vrf:
                         PLANE_B:
                                 af: inet
@@ -224,8 +202,6 @@ nodes:
                                         adv_conn: yes
                                         peers:
                                                 CE1: {ip: 10.1.0.0, as: 65001, af: inet, soo: "65001:1"}
-=======
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
         P1:
                 mgmt: 172.23.84.207
                 rid:  172.16.0.1
@@ -271,11 +247,8 @@ nodes:
                                         - 172.16.0.4
                                 af:
                                         - inet
-<<<<<<< HEAD
                                         - inet-vpn
-=======
-#                                        - inet-vpn
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
+                                        - inet-mvpn
         P5:
                 mgmt: 172.23.84.209
                 rid:  172.16.0.5
@@ -304,10 +277,7 @@ nodes:
                         PL_B: {id: 1, ip: 172.16.1.33}
                         PL_C: {id: 2, ip: 172.16.2.33}
                 links:
-<<<<<<< HEAD
                         ge-0/0/1.123: {ip: 10.2.0.1, remote: CE2, vlan: 123, ce: 1, pim: 1, igmp: 1, vrf: PLANE_B}
-=======
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
                         ge-0/0/1.23: {ip: 10.2.0.1, vlan: 23, remote: CE2, ce: 1, pim: 1, igmp: 1}
                         ge-0/0/0.533: {ip: 10.0.0.9, remote: P5, cost: 10, vlan: 533, circuit_type: level-1}
                         ge-0/0/0.3344: {ip: 10.0.0.10, remote: PE4, cost: 10, vlan: 3344, circuit_type: level-1}
@@ -319,17 +289,13 @@ nodes:
                                         - 172.16.0.4
                                 af:
                                         - inet
-<<<<<<< HEAD
                                         - inet-vpn
-=======
-#                                        - inet-vpn
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
+                                        - inet-mvpn
                                 nexthop: 1
                                 protection: backup
                         ebgp:
                                 peers:
                                         CE2: {ip: 10.2.0.0, af: inet, as: 65002}
-<<<<<<< HEAD
                 vrf:
                         PLANE_B:
                                 af: inet
@@ -345,5 +311,3 @@ nodes:
                                         adv_conn: yes
                                         peers:
                                                 CE2: {ip: 10.2.0.0, as: 65002, af: inet, soo: "65002:1"}
-=======
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4

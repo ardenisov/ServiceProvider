@@ -27,7 +27,6 @@ route-policy PL-eBGP-CE1-OUT
 end-policy
 {% endif %}
 !
-<<<<<<< HEAD
 {% if node.vrf is defined %}
 {% for vrf,vrf_attr in node.vrf.items() %}
 {% for peer,peer_attr in vrf_attr.bgp.peers.items() %}
@@ -44,8 +43,6 @@ end-policy
 {% endfor %}
 {% endif %}
 !
-=======
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
 {% if node.bgp.ibgp.rr is defined %}
 route-policy BGP-PIC-EDGE-UNIPATH
   set path-selection backup 1 advertise
@@ -59,7 +56,6 @@ end-policy
 {% endif %}
 {% endif %}
 
-<<<<<<< HEAD
 {% if node.vrf is defined %}
 {% for vrf,vrf_attr in node.vrf.items() %}
 extcommunity-set rt {{ vrf }}
@@ -76,5 +72,3 @@ end-policy
 {% endfor %}
 {% endif %}
 
-=======
->>>>>>> 9f97ef2788bf3496901a76f68d6adf36550cc4f4
