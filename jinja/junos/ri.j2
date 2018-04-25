@@ -20,6 +20,9 @@ routing-instances {
         	protect core;
 	}
 	interface vt-2/0/0.101 multicast;
+        provider-tunnel {
+            ldp-p2mp;
+        }
         protocols {
             bgp {
 {% for peer,peer_attr in vrf_attr.bgp.peers.items() %}

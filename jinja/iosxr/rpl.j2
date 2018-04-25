@@ -57,6 +57,10 @@ end-policy
 {% endif %}
 
 {% if node.vrf is defined %}
+route-policy PL-BGP-MVPN-LDP-P2MP
+ set core-tree mldp-default
+end-policy
+!
 {% for vrf,vrf_attr in node.vrf.items() %}
 extcommunity-set rt {{ vrf }}
   {{ vrf_attr.rt_out }}

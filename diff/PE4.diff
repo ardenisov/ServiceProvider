@@ -7,13 +7,17 @@
 -  interface GigabitEthernet0/0/0/1
 -   shutdown
 -  !
-+  router bgp 65000
-+   neighbor-group RR
-+    address-family ipv4 mvpn
-+     route-policy PL-VPNV4-EXP out
-+    !
-+   !
++  !
++  route-policy PL-BGP-MVPN-LDP-P2MP
++    set core-tree mldp-default
++  end-policy
++  router pim
 +   vrf PLANE_B
-+    address-family ipv4 mvpn
++    address-family ipv4
++     rpf topology route-policy PL-BGP-MVPN-LDP-P2MP
++     mdt c-multicast-routing bgp
++     !
 +    !
 +   !
++  !
++  router pim

@@ -30,3 +30,14 @@ multicast-routing
 {% endfor %}
 {% endif %}
 
+{% if node.vrf is defined %}
+{% for vrf,vrf_attr in node.vrf.items() %}
+router pim
+ vrf {{ vrf }}
+  address-family ipv4
+   rpf topology route-policy PL-BGP-MVPN-LDP-P2MP
+   mdt c-multicast-routing bgp
+!
+{% endfor %}
+{% endif %}
+

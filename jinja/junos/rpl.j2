@@ -91,7 +91,6 @@ policy-options {
 	    from family inet-mvpn;
 	    then {
 		community add RT-{{ vrf }};
-		next-hop {{ vrf_attr.bgp.nh }};
 		accept;
 	    }
 	}
