@@ -6,9 +6,7 @@
 protocols {
 {% include 'isis.j2' %}
 {% include 'ldp.j2' %}
-{#
 {% include 'te.j2' %}
-#}
 {% if node.bgp is defined %}
 {% include 'bgp.j2' %}
 {% endif %}

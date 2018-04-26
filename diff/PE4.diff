@@ -7,10 +7,8 @@
 -  interface GigabitEthernet0/0/0/1
 -   shutdown
 -  !
-+  router isis 65000
-+   interface GigabitEthernet0/0/0/0.644
-+    suppressed
-+   !
-+   interface GigabitEthernet0/0/0/0.3344
-+    suppressed
-+   !
+mplsmpls traffic-engmpls traffic-engmpls
+ int interface GigabitEthernet0/0/0/0.3344 interface GigabitEthernet0/0/0/0.3344 int
+  ad  admin-weight 20  admin-weight 20  ad
+  ad  admin-weight 1000  admin-weight 1000  ad
+ ! !

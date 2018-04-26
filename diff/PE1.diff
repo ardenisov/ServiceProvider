@@ -1,6 +1,2 @@
 [edit]
 - version 17.2R1.13;
-[edit protocols isis interface ge-0/0/0.111]
-+    no-unicast-topology;
-[edit protocols isis interface ge-0/0/0.1122]
-+    no-unicast-topology;

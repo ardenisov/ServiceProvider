@@ -9,12 +9,10 @@ apply-group GR-ISIS
  is-type {{node.isis.level}}
  set-overload-bit on-startup wait-for-bgp
  address-family ipv4 unicast
- metric-style wide
- ispf
-{% if node.rsvp is defined %}
+  metric-style wide
+  ispf
   mpls traffic-eng level-2-only
   mpls traffic-eng router-id Loopback0
-{% endif %}
 {% for lo,lo_attr in node.loops.items()|sort %}
 interface Loopback{{ lo_attr.id }}
   passive
@@ -26,7 +24,6 @@ interface Loopback{{ lo_attr.id }}
  interface {{intf}}
   address-family ipv4 unicast
    metric {{intf_attr.cost}}
-   suppress
 {% endif %}
 {% endfor %}
 !

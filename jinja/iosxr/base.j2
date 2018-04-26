@@ -5,6 +5,7 @@
 ###         System configuration            ######
 **************************************************
 #}
+{% include 'groups.j2' %}
 hostname {{inventory_hostname}}
 domain name croclab.ru
 
@@ -36,12 +37,10 @@ netconf agent tty
 !
 {% include 'ifs.j2' %}
 {% include 'routing.j2' %}
-{% include 'groups.j2' %}
 {% include 'rpl.j2' %}
 {% include 'isis.j2' %}
 {% include 'ldp.j2' %}
-{#{% include 'te.j2' %}
-#}
+{% include 'te.j2' %}
 {% if node.bgp is defined %}
 {% include 'bgp.j2' %}
 {% endif %}

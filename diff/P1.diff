@@ -1,4 +1,16 @@
 [edit]
 - version 17.2R1.13;
-[edit protocols isis interface ge-0/0/0.111]
-+    no-unicast-topology;
+[edit protocols]
++   rsvp {
++       interface ge-0/0/0.111;
++       interface ge-0/0/0.12;
++       interface ge-0/0/0.13;
++       interface ge-0/0/0.14 {
++           link-protection {
++               admin-group {
++                   include-any AG10;
++                   exclude AG20;
++               }
++           }
++       }
++   }

@@ -20,17 +20,19 @@
 {% endif %}
 {% endif %}
 {% endfor %}
-{% if node.rsvp is defined and node.rsvp !=1 %}
+{% if node.rsvp is defined %}
 	apply-groups GR-LSP;
 	optimize-timer 30;
 	optimize-switchover-delay 15;
 {% for rsvp_dst,rsvp_attr in node.rsvp.items()|sort %}
            label-switched-path {{ inventory_hostname }}-->{{ rsvp_dst }} {
                 to {{ rsvp_attr.dst }};
-                no-install-to-address;
+{% if rsvp_attr.route is defined %}
 {% for route in rsvp_attr.route %}
+                no-install-to-address;
                 install {{ route }};
 {% endfor %}
+{% endif %}
 {% if rsvp_attr.tldp is defined and rsvp_attr.tldp == 1 %}
                 ldp-tunneling;
 {% endif %}
@@ -52,10 +54,10 @@
 ###         RSVP configuration        ######
 ###**************************************************
 ###    #}
-{% if node.rsvp is defined%}
    rsvp {
 {% for intf,intf_attr in node.links.items()|sort %}
-{% if intf_attr.rsvp is defined and intf_attr.rsvp == 1  %}
+{% if intf_attr.ce is defined %}
+{% else %}
 {% if intf_attr.protection is defined %}
            interface {{ intf }} {
              link-protection {
@@ -71,5 +73,4 @@
 {% endif %}
 {% endfor %}
    }
-{% endif %}
 

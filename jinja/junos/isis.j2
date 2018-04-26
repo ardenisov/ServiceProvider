@@ -13,7 +13,6 @@
 {% if intf_attr.ce is defined %}
 {% else %}
         interface {{ intf }} {
-		no-unicast-topology;
 		level 1 disable;
 {% if intf_attr.cost is defined %}
                 level 2 metric {{ intf_attr.cost }};

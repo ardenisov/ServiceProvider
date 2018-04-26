@@ -1,2 +1,10 @@
 [edit]
 - version 17.2R1.13;
+[edit protocols]
++   rsvp {
++       interface ge-0/0/0.13;
++       interface ge-0/0/0.23;
++       interface ge-0/0/0.34;
++       interface ge-0/0/0.35;
++       interface ge-0/0/0.36;
++   }

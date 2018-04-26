@@ -5,18 +5,20 @@
 #}
 ipv4 unnumbered mpls traffic-eng Loopback0
 !
-{% if node.rsvp is defined and node.rsvp !=1 %}
+{% if node.rsvp is defined %}
 {% for rsvp_dst,rsvp_attr in node.rsvp.items()|sort %}
 interface tunnel-{{ rsvp_attr.tun }}
  apply-group GR-LSP
  signalled-name {{ inventory_hostname }}-->{{ rsvp_dst }}
- path-selection metric {{ rsvp_attr.cost_type }}
  destination {{ rsvp_attr.dst }}
-{% for route in rsvp_attr.route %}
+{#{% for route in rsvp_attr.route %}
  autoroute destination {{ route }}
 {% endfor %}
+#}
 {% if rsvp_attr.ag_incl is defined %}
  affinity include {{ rsvp_attr.ag_incl }}
+{% else %}
+ affinity ignore
 {% endif%}
 {% if rsvp_attr.ag_excl is defined %}
  affinity exclude {{ rsvp_attr.ag_excl }}
@@ -27,23 +29,14 @@ interface tunnel-{{ rsvp_attr.tun }}
 {% endfor %}
 {% endif %}
 !
-{% if node.rsvp is defined%}
-rsvp
-{% for intf,intf_attr in node.links.items()|sort %}
-{% if intf_attr.rsvp is defined and intf_attr.rsvp == 1  %}
- interface {{ intf }}
-{% endif %}
-{% else %}
- no interface {{ intf }}
-{% endfor %}
-!
 mpls traffic-eng
-reoptimize 30
-reoptimize timers delay installation 15
+ reoptimize 30
+ reoptimize timers delay installation 15
 {% for intf,intf_attr in node.links.items()|sort %}
-{% if intf_attr.rsvp is defined and intf_attr.rsvp == 1  %}
+{% if intf_attr.ce is defined %}
+{% else %}
  interface {{ intf }}
-{% if intf_attr.tecost is defined and intf_attr.tecost != 0  %}
+{% if intf_attr.tecost is defined %}
  admin-weight {{ intf_attr.tecost }}
 {% endif %}
 {% if intf_attr.affinity is defined %}
@@ -52,10 +45,7 @@ reoptimize timers delay installation 15
 {% if intf_attr.protection is defined and intf_attr.protection == 'auto' %}
   auto-tunnel backup
    attribute-set PLANE_C
-  !
 {% endif %}
-{% else %}
- no interface {{ intf }}
 {% endif %}
 {% endfor %}
  affinity-map AG10 bit-position 10
@@ -69,5 +59,12 @@ reoptimize timers delay installation 15
   tunnel-id min 101 max 199
   exit
 !
+rsvp
+{% for intf,intf_attr in node.links.items()|sort %}
+{% if intf_attr.ce is defined %}
+{% else %}
+ interface {{ intf }}
 {% endif %}
+{% endfor %}
+!
 
