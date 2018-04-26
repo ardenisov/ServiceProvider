@@ -3,3 +3,20 @@
 -  !
 -  interface GigabitEthernet0/0/0/0
 -   shutdown
+-  !
++  router isis 65000
++   interface GigabitEthernet0/0/0/0.14
++    suppressed
++   !
++   interface GigabitEthernet0/0/0/0.24
++    suppressed
++   !
++   interface GigabitEthernet0/0/0/0.34
++    suppressed
++   !
++   interface GigabitEthernet0/0/0/0.45
++    suppressed
++   !
++   interface GigabitEthernet0/0/0/0.46
++    suppressed
++   !

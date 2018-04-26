@@ -4,44 +4,29 @@
 **************************************************
 #}
 router isis {{common.isis.process}}
-{% if node.isis.protection is defined %}
 apply-group GR-ISIS
-{% endif %}
-{% if node.isis.area is defined %}
  net 49.{{node.isis.area}}.0000.0000.{{node.isis.net}}.00
-{% endif %}
-{% if node.isis.area0 is defined %}
- net 49.{{node.isis.area0}}.0000.0000.{{node.isis.net}}.00
-{% endif %}
  is-type {{node.isis.level}}
  set-overload-bit on-startup wait-for-bgp
  address-family ipv4 unicast
-  metric-style wide
-  ispf
+ metric-style wide
+ ispf
 {% if node.rsvp is defined %}
-  mpls traffic-eng level-1-2
+  mpls traffic-eng level-2-only
   mpls traffic-eng router-id Loopback0
-{% endif %}
-{% if node.isis.propagate is defined %}
-  propagate level 2 into level 1 route-policy {{ node.isis.propagate }}
 {% endif %}
 {% for lo,lo_attr in node.loops.items()|sort %}
 interface Loopback{{ lo_attr.id }}
   passive
   address-family ipv4 unicast
-{% if node.isis.lolvl is defined %}
-  circuit-type {{node.isis.lolvl}}
-{% endif %}
 {% endfor %}
 {% for intf,intf_attr in node.links.items()|sort %}
 {% if intf_attr.ce is defined %}
 {% else %}
  interface {{intf}}
-{% if intf_attr.circuit_type is defined %}
-   circuit-type {{intf_attr.circuit_type}}
-{% endif %}
   address-family ipv4 unicast
    metric {{intf_attr.cost}}
+   suppress
 {% endif %}
 {% endfor %}
 !

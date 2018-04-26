@@ -1,13 +1,6 @@
 [edit]
 - version 17.2R1.13;
-[edit protocols igmp]
-+    interface ge-0/0/1.123 {
-+        version 3;
-+    }
-     interface ge-0/0/1.23 { ... }
-[edit policy-options policy-statement PL-PLANE_B-EXP term MULTICAST then]
--      next-hop 172.16.1.33;
-[edit routing-instances PLANE_B]
-+    provider-tunnel {
-+        ldp-p2mp;
-+    }
+[edit protocols isis interface ge-0/0/0.533]
++    no-unicast-topology;
+[edit protocols isis interface ge-0/0/0.3344]
++    no-unicast-topology;

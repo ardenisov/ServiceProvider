@@ -19,5 +19,6 @@
         config_file: /etc/ansible/SP/config/{{dev_os}}/{{inventory_hostname}}.cfg
         commit_changes: "{{commit}}"
         diff_file: /etc/ansible/SP/diff/{{inventory_hostname}}.diff
+        replace_config: True
         timeout: 20
 #      when: "inventory_hostname in nodes.keys()"
